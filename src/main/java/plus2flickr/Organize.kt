@@ -8,7 +8,7 @@ import org.joda.time.format.DateTimeFormat
 import org.apache.commons.io.FileUtils
 
 data class OrganizeOptions() {
-  Option("-d") var source: String? = null
+  Option("-s") var source: String? = null
   Option("-o") var output: String? = null
   Option("-deleteSource") var deleteSource = false
 }
