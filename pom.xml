@@ -64,6 +64,16 @@
       <artifactId>commons-io</artifactId>
       <version>${commons.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.flickr4java</groupId>
+      <artifactId>flickr</artifactId>
+      <version>${flickr.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.scribe</groupId>
+      <artifactId>scribe</artifactId>
+      <version>${scribe.version}</version>
+    </dependency>
   </dependencies>
 
   <properties>
@@ -71,6 +81,8 @@
     <args4j.version>2.0.26</args4j.version>
     <joda-time.version>2.2</joda-time.version>
     <commons.version>2.4</commons.version>
+    <flickr.version>2.5</flickr.version>
+    <scribe.version>1.3.2</scribe.version>
   </properties>
 
   <repositories>
@@ -84,6 +96,14 @@
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
+    </repository>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>central</id>
+      <name>bintray</name>
+      <url>http://jcenter.bintray.com</url>
     </repository>
   </repositories>
 

@@ -4,7 +4,9 @@ import org.kohsuke.args4j.CmdLineParser
 import org.kohsuke.args4j.CmdLineException
 
 fun main(args: Array<String>) {
-  val commands = mapOf("organize" to wrapOperation(::organize, OrganizeOptions()))
+  val commands = mapOf(
+      "organize" to wrapOperation(::organize, OrganizeOptions()),
+      "upload" to wrapOperation(::upload, UploadOptions()))
   if (args.size == 0) {
     println("Please specify one of following commands:")
     println(commands.keySet())
