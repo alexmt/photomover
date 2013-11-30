@@ -11,3 +11,9 @@ Move Google+ photos to Flickr
   -s - source directory
   -o - output directory
   -deleteSource - DELETE source directories if true
+
+3. Upload photos to Flickr
+
+  upload -s /home/matyushentsev/Pictures/Google -appKey [yourAppKey] -appSecret [yourAppSecret]
+
+  each directory will be uploaded to set with the same name
