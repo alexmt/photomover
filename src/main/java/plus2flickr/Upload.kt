@@ -10,6 +10,7 @@ import com.flickr4java.flickr.photosets.Photoset
 import java.util.HashMap
 import java.io.File
 import com.flickr4java.flickr.uploader.UploadMetaData
+import com.flickr4java.flickr.FlickrException
 
 data class UploadOptions() {
   Option("-s") var source: String? = null
@@ -53,11 +54,16 @@ fun upload(options: UploadOptions) {
       metaData.setPublicFlag(options.isPublic)
       metaData.setAsync(false)
       metaData.setTitle(file.getName())
-      val photoId = uploader.upload(file, metaData)
-      if (set == null) {
-        set = photosetsInteface.create(dir.name, null, photoId)!!
-      } else {
-        photosetsInteface.addPhoto(set!!.getId(), photoId)
+      try {
+        val photoId = uploader.upload(file, metaData)
+        if (set == null) {
+          set = photosetsInteface.create(dir.name, null, photoId)!!
+        } else {
+          photosetsInteface.addPhoto(set!!.getId(), photoId)
+        }
+      } catch (ex: FlickrException) {
+        println("Cannot upload '$file':")
+        println(ex.getErrorMessage())
       }
       print(".")
     }
