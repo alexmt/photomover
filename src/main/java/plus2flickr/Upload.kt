@@ -17,6 +17,7 @@ data class UploadOptions() {
   Option("-appKey") var appKey: String? = null
   Option("-appSecret") var appSecret: String? = null
   Option("-public") var isPublic: Boolean = false
+  Option("-maxSizeMb") var maxSizeMb: Int = 50
 }
 
 fun authorize(flickr: Flickr) {
@@ -46,10 +47,12 @@ fun upload(options: UploadOptions) {
   }
   val uploader = flickr.getUploader()!!
   println("Start photo upload")
+  val maxSizeBytes = options.maxSizeMb * 1024 * 1024
   for (dir in File(options.source!!).listFiles { it.isDirectory() }!!) {
     print("${dir.name}...")
     var set = setByTitle[dir.name]
-    for (file in dir.listFiles()!!) {
+    for (file in dir.listFiles({ it.length() < maxSizeBytes
+    })!!) {
       val metaData = UploadMetaData()
       metaData.setPublicFlag(options.isPublic)
       metaData.setAsync(false)
@@ -62,8 +65,13 @@ fun upload(options: UploadOptions) {
           photosetsInteface.addPhoto(set!!.getId(), photoId)
         }
       } catch (ex: FlickrException) {
+        println()
         println("Cannot upload '$file':")
-        println(ex.getErrorMessage())
+        print(ex.getErrorMessage())
+      } catch (ex: Exception) {
+        println()
+        println("Unknown error while uploading '$file':")
+        print(ex)
       }
       print(".")
     }
