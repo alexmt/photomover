@@ -1,11 +1,4 @@
-// Generated on 2014-01-17 using generator-angular 0.7.1
 'use strict';
-
-// # Globbing
-// for performance reasons we're only matching one level down:
-// 'test/spec/{,*/}*.js'
-// use this if you want to recursively match all subfolders:
-// 'test/spec/**/*.js'
 
 module.exports = function (grunt) {
 
@@ -65,13 +58,37 @@ module.exports = function (grunt) {
         hostname: 'localhost',
         livereload: 35729
       },
+      proxies: [{
+        context: '/services',
+        host: 'localhost',
+        port: 8080
+      }],
       livereload: {
         options: {
           open: true,
           base: [
             '.tmp',
             '<%= yeoman.app %>'
-          ]
+          ],
+          middleware: function (connect, options) {
+            if (!Array.isArray(options.base)) {
+              options.base = [options.base];
+            }
+
+            // Setup the proxy
+            var middlewares = [require('grunt-connect-proxy/lib/utils').proxyRequest];
+
+            // Serve static files.
+            options.base.forEach(function(base) {
+              middlewares.push(connect.static(base));
+            });
+
+            // Make directory browse-able.
+            var directory = options.directory || options.base[options.base.length - 1];
+            middlewares.push(connect.directory(directory));
+
+            return middlewares;
+          }
         }
       },
       test: {
@@ -319,6 +336,7 @@ module.exports = function (grunt) {
       'clean:server',
       'bower-install',
       'concurrent:server',
+      'configureProxies:server',
       'autoprefixer',
       'connect:livereload',
       'watch'
