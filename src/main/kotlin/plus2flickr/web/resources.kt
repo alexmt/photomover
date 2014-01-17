@@ -8,6 +8,6 @@ import javax.ws.rs.GET
 Path("/account") Produces("application/json") class Account {
 
   GET Path("/info") fun info(): AccountInfo {
-    return AccountInfo()
+    return AccountInfo(firstName = "Vera", lastName = "Matyushentseva")
   }
 }
