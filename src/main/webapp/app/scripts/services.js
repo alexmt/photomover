@@ -1,11 +1,13 @@
 angular.module('services', ['ngResource'])
-    .factory('Account', ['$resource', function ($resource) {
-      return $resource('services/account/:action', {}, {
+    .factory('User', ['$resource', function ($resource) {
+      return $resource('services/user/:action', {}, {
         info: {
           method: 'GET',
-          params: {
-            action: 'info'
-          }
+          params: { action: 'info' }
+        },
+        storeGoogleToken: {
+          method: 'POST',
+          params: { action: 'storeGoogleToken' }
         }
       });
     }]);
