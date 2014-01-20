@@ -6,13 +6,11 @@ enum class AccountType(val id: Int) {
   GOOGLE: AccountType(1)
 }
 
-data class Account(var serviceType: AccountType) {
-
-}
+data class OAuthAccount(var token: String) {}
 
 data class User(
     var firstName: String = "",
     var lastName: String = "",
     var email: String = "") : CouchDbDocument() {
-  var accounts: MutableList<Account> = arrayListOf()
+  var accounts: MutableMap<AccountType, OAuthAccount> = hashMapOf()
 }

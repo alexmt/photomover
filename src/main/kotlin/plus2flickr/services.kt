@@ -1,16 +1,18 @@
 package plus2flickr.services
 
-import com.google.inject.Inject
 import org.ektorp.CouchDbConnector
 import org.ektorp.support.CouchDbRepositorySupport
 import plus2flickr.domain.User
-
+import plus2flickr.thirdparty.CloudService
+import plus2flickr.domain.AccountType
+import plus2flickr.domain.OAuthAccount
+import com.google.inject.Inject
 
 class UserRepository[Inject](db: CouchDbConnector)
 : CouchDbRepositorySupport<User>(javaClass<User>(), db) {
 }
 
-class UserService[Inject](val users: UserRepository) {
+class UserService[Inject](val users: UserRepository, val google: CloudService) {
 
   fun findUserById(id: String): User? {
     return if (users.contains(id)) {
@@ -26,7 +28,8 @@ class UserService[Inject](val users: UserRepository) {
     return user
   }
 
-  fun setGoogleTokenForUser(user: User, authCode: String) {
-    
+  fun authorizeGoogleAccount(user: User, authCode: String) {
+    val token = google.authorize(authCode)
+    user.accounts.put(AccountType.GOOGLE, OAuthAccount(token))
   }
 }

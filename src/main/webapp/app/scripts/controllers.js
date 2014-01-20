@@ -7,8 +7,8 @@ angular.module('controllers', ['services'])
       window.googleSignInCallback = function(authResult) {
         var authCode = authResult['code'];
         if (authCode) {
-          User.storeGoogleToken(authCode, function() {
-            alert("It looks like response")
+          User.authorizeGoogleAccount(authCode, function(response) {
+            $scope.userInfo = response.data;
           });
         } else if (authResult['error']) {
           //   "access_denied" – пользователь отказался предоставить приложению доступ к данным

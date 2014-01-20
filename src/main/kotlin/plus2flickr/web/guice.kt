@@ -21,11 +21,20 @@ import com.google.inject.Provider
 import plus2flickr.domain.User
 import plus2flickr.services.UserService
 import javax.servlet.http.Cookie
-import org.omg.DynamicAny._DynUnionStub
 import org.ektorp.CouchDbConnector
 import org.ektorp.impl.StdCouchDbConnector
 import plus2flickr.web.findByCookieName
 import plus2flickr.web.CurrentUserProvider
+import com.google.api.client.http.HttpTransport
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
+import com.google.api.client.json.JsonFactory
+import com.google.api.client.json.jackson2.JacksonFactory
+import plus2flickr.thirdparty.google.GoogleAppSettings
+import plus2flickr.thirdparty.CloudService
+import plus2flickr.thirdparty.google.GoogleService
+import org.codehaus.jackson.map.ObjectMapper
+import java.io.IOException
+import com.google.inject.Singleton
 
 class DbModule(
     val dbName: String = "plus2flickr",
@@ -54,7 +63,6 @@ class DbModule(
 }
 
 class GuiceContext : GuiceServletContextListener() {
-
   override fun getInjector(): Injector? {
     return Guice.createInjector(object : JerseyServletModule() {
 
@@ -65,12 +73,35 @@ class GuiceContext : GuiceServletContextListener() {
         )
         serve("/*")!!.with(javaClass<GuiceContainer>(), hashMap)
       }
-    }, DbModule(), WebAppModule())
+    }, DbModule(), WebAppModule(), GoogleServiceModule())
   }
 }
 
 class WebAppModule() : AbstractModule() {
   override fun configure() {
     bind(javaClass<User>())!!.toProvider(javaClass<CurrentUserProvider>())
+  }
+}
+
+class GoogleServiceModule() : AbstractModule() {
+  override fun configure() {
+    bind(javaClass<CloudService>())!!.to(javaClass<GoogleService>())
+  }
+
+  Provides fun provideHttpTransport(): HttpTransport = GoogleNetHttpTransport.newTrustedTransport()!!
+
+  Provides fun provideJsonFactory(): JsonFactory = JacksonFactory.getDefaultInstance()!!
+
+  Provides Singleton fun provideGoogleAppSettings(): GoogleAppSettings {
+    val secretResource = javaClass<GuiceContext>().getResource("/client_secret.json")
+    if (secretResource == null) {
+      throw IOException("Resource /client_secret.json not found")
+    }
+    val web = ObjectMapper().readTree(secretResource.openStream())!!.get("web")!!
+    return GoogleAppSettings(
+        clientId = web.get("client_id")!!.asText()!!,
+        clientSecret = web.get("client_secret")!!.asText()!!,
+        applicationName = "Plus2Flickr"
+    )
   }
 }

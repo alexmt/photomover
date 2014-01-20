@@ -34,6 +34,9 @@ dependencies {
   // services
   compile "org.scribe:scribe:$scribeVersion" //oauth
   compile "com.flickr4java:flickr:$flickrVersion"
+  compile "com.google.api-client:google-api-client:$googleApiClientVersion"
+  compile "com.google.apis:google-api-services-oauth2:v2-rev60-1.17.0-rc"
+  compile "com.google.http-client:google-http-client-jackson2:1.17.0-rc"
   // web
   compile "javax.servlet:servlet-api:$servletApiVersion"
   compile "com.google.inject.extensions:guice-servlet:$guiceServletVersion"

@@ -5,9 +5,9 @@ angular.module('services', ['ngResource'])
           method: 'GET',
           params: { action: 'info' }
         },
-        storeGoogleToken: {
+        authorizeGoogleAccount: {
           method: 'POST',
-          params: { action: 'storeGoogleToken' }
+          params: { action: 'authorizeGoogleAccount' }
         }
       });
     }]);

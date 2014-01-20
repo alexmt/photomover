@@ -4,3 +4,5 @@ target/
 build
 bin
 plus2flickr.iml
+
+src/main/resources/client_secret.json
