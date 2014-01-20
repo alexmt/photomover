@@ -2,7 +2,7 @@ package plus2flickr.web.resources
 
 import javax.ws.rs.Produces
 import javax.ws.rs.Path
-import plus2flickr.web.models.UserInfo
+import plus2flickr.web.models.UserInfoViewModel
 import javax.ws.rs.GET
 import com.google.inject.Inject
 import plus2flickr.domain.User
@@ -11,24 +11,29 @@ import javax.ws.rs.POST
 import plus2flickr.services.UserService
 import plus2flickr.web.models.OperationResponse
 import plus2flickr.thirdparty.AuthorizationException
+import plus2flickr.thirdparty.UserInfo
 
 Path("/user") Produces("application/json")
 class UserResource [Inject] (
     val userProvider: Provider<User>,
     val userService: UserService){
 
-  val user: User
-    get() = userProvider.get()!!
+  fun currentUser(): User = userProvider.get()!!
 
-  GET Path("/info") fun info(): UserInfo {
-    return UserInfo(firstName = user.firstName, lastName = user.lastName)
+  private fun UserInfo.toViewModel(): UserInfoViewModel = UserInfoViewModel(
+      firstName = firstName?: "Anonimous",
+      lastName = lastName?: "")
+
+  GET Path("/info") fun info(): UserInfoViewModel {
+    return currentUser().info.toViewModel()
   }
 
   POST Path("/authorizeGoogleAccount") fun authorizeGoogleAccount(authCode: String)
-      : OperationResponse<UserInfo> {
+      : OperationResponse<UserInfoViewModel> {
     try {
+      val user = currentUser()
       userService.authorizeGoogleAccount(user, authCode)
-      return OperationResponse(data = info(), success = true)
+      return OperationResponse(data = user.info.toViewModel(), success = true)
     } catch (e: AuthorizationException){
       return OperationResponse(errorMessage = e.message, success = false)
     }

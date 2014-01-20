@@ -5,7 +5,7 @@ import org.ektorp.support.CouchDbRepositorySupport
 import plus2flickr.domain.User
 import plus2flickr.thirdparty.CloudService
 import plus2flickr.domain.AccountType
-import plus2flickr.domain.OAuthAccount
+import plus2flickr.domain.OAuthData
 import com.google.inject.Inject
 
 class UserRepository[Inject](db: CouchDbConnector)
@@ -23,13 +23,15 @@ class UserService[Inject](val users: UserRepository, val google: CloudService) {
   }
 
   fun createUser(): User {
-    val user = User(firstName = "Anonymous")
+    val user = User()
     users.add(user)
     return user
   }
 
   fun authorizeGoogleAccount(user: User, authCode: String) {
     val token = google.authorize(authCode)
-    user.accounts.put(AccountType.GOOGLE, OAuthAccount(token))
+    user.accounts.put(AccountType.GOOGLE, OAuthData(token))
+    user.enrichUserInfo(google.getUserInfo(token))
+    users.update(user)
   }
 }

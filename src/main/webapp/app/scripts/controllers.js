@@ -11,8 +11,7 @@ angular.module('controllers', ['services'])
             $scope.userInfo = response.data;
           });
         } else if (authResult['error']) {
-          //   "access_denied" – пользователь отказался предоставить приложению доступ к данным
-          //   "immediate_failed" – не удалось выполнить автоматический вход пользователя
+          // TODO(amatyushentsev): Implement possible errors handling: "access_denied", "immediate_failed"
         }
       }
     }]);
