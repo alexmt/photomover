@@ -1,6 +1,6 @@
 package plus2flickr.web.models
 
-data class UserInfoViewModel(var firstName: String = "", var lastName: String = "")
+data class UserInfoViewModel(var name: String = "")
 
 data class OperationResponse<T>(
     var success: Boolean = true,

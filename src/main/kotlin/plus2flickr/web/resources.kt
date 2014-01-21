@@ -21,8 +21,11 @@ class UserResource [Inject] (
   fun currentUser(): User = userProvider.get()!!
 
   private fun UserInfo.toViewModel(): UserInfoViewModel = UserInfoViewModel(
-      firstName = firstName?: "Anonimous",
-      lastName = lastName?: "")
+      name = if (firstName != null && lastName != null) {
+        "$firstName $lastName"
+      } else {
+        firstName ?: lastName ?: "User"
+      })
 
   GET Path("/info") fun info(): UserInfoViewModel {
     return currentUser().info.toViewModel()

@@ -1,20 +1,11 @@
-<div class="header">
-    <ul class="nav nav-pills pull-right">
-        <li class="active"><a ng-href="#">Home</a></li>
-    </ul>
-    <h3 class="text-muted">Photo publisher</h3>
-</div>
-
-<div class="row marketing">
-    <p>
-        Hello {{userInfo.firstName}} {{userInfo.lastName}}!
-    </p>
-
+<div class="row content">
+  <div class="col-md-2">
     <div id="signinButton">
+      <h3 class="text-muted">List of connected services here</h3>
       <span class="g-signin"
             data-scope="https://www.googleapis.com/auth/plus.login
-                https://www.googleapis.com/auth/userinfo.email
-                https://www.googleapis.com/auth/userinfo.profile"
+            https://www.googleapis.com/auth/userinfo.email
+            https://www.googleapis.com/auth/userinfo.profile"
             data-clientid="7809071210-sj1pnec4nln39p542tooqa0k1nf8n53h.apps.googleusercontent.com"
             data-redirecturi="postmessage"
             data-accesstype="offline"
@@ -22,20 +13,19 @@
             data-callback="{{googleSignInCallback}}">
       </span>
     </div>
-    <div id="result"></div>
-</div>
-
-<div class="footer">
-
+  </div>
+  <div class="col-md-10">
+    <h3 class="text-muted">Photos will be here</h3>
+  </div>
 </div>
 
 <script type="text/javascript">
-    (function () {
-        var po = document.createElement('script');
-        po.type = 'text/javascript';
-        po.async = true;
-        po.src = 'https://plus.google.com/js/client:plusone.js?onload=start';
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(po, s);
-    })();
+  (function () {
+    var po = document.createElement('script');
+    po.type = 'text/javascript';
+    po.async = true;
+    po.src = 'https://plus.google.com/js/client:plusone.js?onload=start';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(po, s);
+  })();
 </script>
