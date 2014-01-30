@@ -1,3 +1,5 @@
+import org.gradle.api.plugins.jetty.internal.Monitor
+
 buildscript {
   repositories {
     mavenCentral()
@@ -17,7 +19,17 @@ apply plugin: "jetty"
 
 jettyRun {
   contextPath = "services"
+  scanIntervalSeconds = 1
+  daemon = true
+  doLast {
+    if (getStopPort() != null && getStopPort() > 0 && getStopKey() != null) {
+      Monitor monitor = new Monitor(getStopPort(), getStopKey(), server.getProxiedObject());
+      monitor.start();
+    }
+  }
 }
+[jettyRun, jettyStop]*.stopPort = 8081
+[jettyRun, jettyStop]*.stopKey = 'jettyStop'
 
 repositories {
   mavenCentral()
