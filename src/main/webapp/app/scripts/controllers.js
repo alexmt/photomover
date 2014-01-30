@@ -1,17 +1,16 @@
 'use strict';
-function googleSignInCallback(authResult) {}
 angular.module('controllers', ['services'])
-    .controller('MainCtrl', ['$scope', 'User', function ($scope, User) {
-      $scope.userInfo = User.info();
-      $scope.googleSignInCallback = "googleSignInCallback";
-      window.googleSignInCallback = function(authResult) {
-        var authCode = authResult['code'];
-        if (authCode) {
-          User.authorizeGoogleAccount(authCode, function(response) {
-            $scope.userInfo = response.data;
-          });
-        } else if (authResult['error']) {
-          // TODO(amatyushentsev): Implement possible errors handling: "access_denied", "immediate_failed"
-        }
-      }
-    }]);
+  .controller('AppCtrl', ['$scope', 'User', 'App', function ($scope, User, App) {
+    $scope.userInfo = User.info();
+    $scope.$on('event:google-plus-signin-success', function (event, authResponse) {
+      User.authorizeGoogleAccount(authResponse.code, function (response) {
+        $scope.userInfo = response.data;
+      });
+    });
+    App.googleAppSettings().$promise.then(function (value) {
+      $scope.googleAppSettings = value;
+    });
+  }])
+  .controller('MainCtrl', ['$scope', 'User', 'App', function ($scope, User, App) {
+
+  }]);

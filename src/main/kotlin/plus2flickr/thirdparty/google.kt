@@ -17,7 +17,8 @@ import com.google.inject.Inject
 data class GoogleAppSettings(
     var clientId: String = "",
     var clientSecret: String = "",
-    val applicationName: String = "") {
+    var applicationName: String = "",
+    var scopes: List<String> = listOf()) {
 }
 
 class GoogleService[Inject](
@@ -60,7 +61,7 @@ class GoogleService[Inject](
           accessToken = tokenResponse.getAccessToken()!!,
           refreshToken = tokenResponse.getRefreshToken())
     } catch (e: TokenResponseException) {
-      throw AuthorizationException(AuthorizationError.SERVER_ERROR, e.getDetails().toString())
+      throw AuthorizationException(AuthorizationError.SERVER_ERROR, e.toString())
     }
   }
 

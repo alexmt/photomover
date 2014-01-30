@@ -35,6 +35,7 @@ import plus2flickr.thirdparty.google.GoogleService
 import org.codehaus.jackson.map.ObjectMapper
 import java.io.IOException
 import com.google.inject.Singleton
+import plus2flickr.web.resources.AppResource
 
 class DbModule(
     val dbName: String = "plus2flickr",
@@ -68,6 +69,7 @@ class GuiceContext : GuiceServletContextListener() {
 
       override fun configureServlets() {
         bind(javaClass<UserResource>())
+        bind(javaClass<AppResource>())
         val hashMap: HashMap<String, String> = hashMapOf(
             "com.sun.jersey.api.json.POJOMappingFeature" to "true"
         )
@@ -99,9 +101,13 @@ class GoogleServiceModule() : AbstractModule() {
     }
     val web = ObjectMapper().readTree(secretResource.openStream())!!.get("web")!!
     return GoogleAppSettings(
-        clientId = web.get("client_id")!!.asText()!!,
+        clientId =  web.get("client_id")!!.asText()!!,
         clientSecret = web.get("client_secret")!!.asText()!!,
-        applicationName = "Plus2Flickr"
+        applicationName = "Plus2Flickr",
+        scopes = listOf(
+            "https://www.googleapis.com/auth/plus.login",
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile")
     )
   }
 }

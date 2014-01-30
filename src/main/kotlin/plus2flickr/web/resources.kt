@@ -12,6 +12,8 @@ import plus2flickr.services.UserService
 import plus2flickr.web.models.OperationResponse
 import plus2flickr.thirdparty.AuthorizationException
 import plus2flickr.thirdparty.UserInfo
+import plus2flickr.thirdparty.google.GoogleAppSettings
+import plus2flickr.web.models.GoogleAppSettingsViewModel
 
 Path("/user") Produces("application/json")
 class UserResource [Inject] (
@@ -40,5 +42,14 @@ class UserResource [Inject] (
     } catch (e: AuthorizationException){
       return OperationResponse(errorMessage = e.message, success = false)
     }
+  }
+}
+
+Path("/app") Produces("application/json")
+class AppResource[Inject](val googleAppSettings: GoogleAppSettings) {
+
+  GET Path("/googleAppSettings") fun googleAppSettings(): GoogleAppSettingsViewModel {
+    return GoogleAppSettingsViewModel(
+        clientId = googleAppSettings.clientId, scopes = googleAppSettings.scopes)
   }
 }
