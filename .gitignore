@@ -5,4 +5,9 @@ build
 bin
 plus2flickr.iml
 
+node_modules
+dist
+.tmp
+.sass-cache
+
 src/main/resources/client_secret.json
