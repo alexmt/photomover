@@ -23,7 +23,6 @@ import plus2flickr.services.UserService
 import javax.servlet.http.Cookie
 import org.ektorp.CouchDbConnector
 import org.ektorp.impl.StdCouchDbConnector
-import plus2flickr.web.findByCookieName
 import com.google.api.client.http.HttpTransport
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.JsonFactory

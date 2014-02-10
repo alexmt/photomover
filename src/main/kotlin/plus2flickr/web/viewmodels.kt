@@ -1,6 +1,6 @@
 package plus2flickr.web.models
 
-data class UserInfoViewModel(var name: String = "")
+data class UserInfoViewModel(var name: String = "", var accountsState: Map<String, Boolean> = mapOf())
 
 data class GoogleAppSettingsViewModel(var clientId: String, var scopes: List<String>)
 
