@@ -14,13 +14,12 @@ import plus2flickr.thirdparty.AuthorizationException
 import plus2flickr.thirdparty.UserInfo
 import plus2flickr.thirdparty.google.GoogleAppSettings
 import plus2flickr.web.models.GoogleAppSettingsViewModel
+import plus2flickr.web.RequestState
 
 Path("/user") Produces("application/json")
 class UserResource [Inject] (
-    val userProvider: Provider<User>,
-    val userService: UserService){
-
-  fun currentUser(): User = userProvider.get()!!
+    val userService: UserService,
+    val state: RequestState){
 
   private fun UserInfo.toViewModel(): UserInfoViewModel = UserInfoViewModel(
       name = if (firstName != null && lastName != null) {
@@ -30,14 +29,13 @@ class UserResource [Inject] (
       })
 
   GET Path("/info") fun info(): UserInfoViewModel {
-    return currentUser().info.toViewModel()
+    return state.currentUser.info.toViewModel()
   }
 
   POST Path("/authorizeGoogleAccount") fun authorizeGoogleAccount(authCode: String)
       : OperationResponse<UserInfoViewModel> {
     try {
-      val user = currentUser()
-      userService.authorizeGoogleAccount(user, authCode)
+      val user = userService.authorizeGoogleAccount(state.currentUser, authCode)
       return OperationResponse(data = user.info.toViewModel(), success = true)
     } catch (e: AuthorizationException){
       return OperationResponse(errorMessage = e.message, success = false)

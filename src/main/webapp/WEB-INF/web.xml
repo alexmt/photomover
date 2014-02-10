@@ -18,6 +18,6 @@
   </filter-mapping>
 
   <listener>
-    <listener-class>plus2flickr.web.guice.GuiceContext</listener-class>
+    <listener-class>plus2flickr.guice.GuiceContext</listener-class>
   </listener>
 </web-app>

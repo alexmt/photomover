@@ -1,4 +1,4 @@
-package plus2flickr.web.guice
+package plus2flickr.guice
 
 import com.google.inject.servlet.GuiceServletContextListener
 import com.google.inject.Injector
@@ -24,7 +24,6 @@ import javax.servlet.http.Cookie
 import org.ektorp.CouchDbConnector
 import org.ektorp.impl.StdCouchDbConnector
 import plus2flickr.web.findByCookieName
-import plus2flickr.web.CurrentUserProvider
 import com.google.api.client.http.HttpTransport
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.JsonFactory
@@ -36,6 +35,32 @@ import org.codehaus.jackson.map.ObjectMapper
 import java.io.IOException
 import com.google.inject.Singleton
 import plus2flickr.web.resources.AppResource
+import plus2flickr.couchdb.CouchDbManager
+import plus2flickr.repositories.couchdb.CouchDbUserRepository
+import plus2flickr.repositories.UserRepository
+import javax.servlet.ServletContextEvent
+import com.sun.jersey.api.core.ResourceConfig
+import plus2flickr.web.filters.AuthenticationResponseFilter
+
+class GuiceContext : GuiceServletContextListener() {
+  override fun getInjector(): Injector? {
+    val injector = Guice.createInjector(object : JerseyServletModule() {
+
+      override fun configureServlets() {
+        val packageName = javaClass<UserResource>().getPackage()!!.getName()!!
+        val hashMap: HashMap<String, String> = hashMapOf(
+            "com.sun.jersey.api.json.POJOMappingFeature" to "true",
+            "com.sun.jersey.config.property.packages" to packageName,
+            ResourceConfig.PROPERTY_CONTAINER_REQUEST_FILTERS to javaClass<AuthenticationResponseFilter>().getName(),
+            ResourceConfig.PROPERTY_CONTAINER_RESPONSE_FILTERS to javaClass<AuthenticationResponseFilter>().getName()
+        )
+        serve("/*")!!.with(javaClass<GuiceContainer>(), hashMap)
+      }
+    }, DbModule(), GoogleServiceModule())
+    injector!!.getInstance(javaClass<CouchDbManager>())!!.ensureDbExists()
+    return injector
+  }
+}
 
 class DbModule(
     val dbName: String = "plus2flickr",
@@ -43,45 +68,19 @@ class DbModule(
     val port: Int = 5984) : AbstractModule() {
 
   override fun configure() {
+    bind(javaClass<UserRepository>())!!.to(javaClass<CouchDbUserRepository>())
   }
 
-  protected fun validateDb(dbInstance: StdCouchDbInstance) {
-    if (!dbInstance.checkIfDbExists(DbPath(dbName))) {
-      dbInstance.createDatabase(dbName)
-    }
-  }
+  Provides fun provideDbInstance(): CouchDbInstance =
+      StdCouchDbInstance(StdHttpClient.Builder().host(host)?.port(port)?.build())
 
-  Provides fun provideDbInstance(): CouchDbInstance {
-    val httpClient = StdHttpClient.Builder().host(host)?.port(port)?.build()
-    val dbInstance = StdCouchDbInstance(httpClient)
-    validateDb(dbInstance)
-    return dbInstance
-  }
+  Provides fun provideDbConnector(dbInstance: CouchDbInstance): CouchDbConnector =
+      StdCouchDbConnector(dbName, dbInstance)
 
-  Provides fun provideDbConnector(dbInstance: CouchDbInstance): CouchDbConnector {
-    return StdCouchDbConnector(dbName, dbInstance)
-  }
-}
-
-class GuiceContext : GuiceServletContextListener() {
-  override fun getInjector(): Injector? {
-    return Guice.createInjector(object : JerseyServletModule() {
-
-      override fun configureServlets() {
-        bind(javaClass<UserResource>())
-        bind(javaClass<AppResource>())
-        val hashMap: HashMap<String, String> = hashMapOf(
-            "com.sun.jersey.api.json.POJOMappingFeature" to "true"
-        )
-        serve("/*")!!.with(javaClass<GuiceContainer>(), hashMap)
-      }
-    }, DbModule(), WebAppModule(), GoogleServiceModule())
-  }
-}
-
-class WebAppModule() : AbstractModule() {
-  override fun configure() {
-    bind(javaClass<User>())!!.toProvider(javaClass<CurrentUserProvider>())
+  Provides fun provideDbManager(dbInstance: CouchDbInstance, injector: Injector): CouchDbManager {
+    val manager = CouchDbManager(dbName, dbInstance, injector)
+    manager.addRepClass(javaClass<CouchDbUserRepository>())
+    return manager
   }
 }
 

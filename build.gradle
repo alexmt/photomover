@@ -18,12 +18,16 @@ mainClassName = "plus2flickr.Plus2flickrPackage"
 
 apply plugin: "kotlin"
 apply plugin: "jetty"
-apply plugin: 'grunt'
+apply plugin: "grunt"
+
+test {
+  useTestNG()
+}
 
 jettyRun {
   contextPath = "services"
   scanIntervalSeconds = 1
-  daemon = true
+  daemon = false
   doLast {
     if (getStopPort() != null && getStopPort() > 0 && getStopKey() != null) {
       Monitor monitor = new Monitor(getStopPort(), getStopKey(), server.getProxiedObject());
@@ -46,6 +50,7 @@ dependencies {
   compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
   compile "joda-time:joda-time:$jodaTimeVersion"
   compile "commons-io:commons-io:$commonsIoVersion"
+  compile "com.google.guava:guava:$guavaVersion"
   // services
   compile "org.scribe:scribe:$scribeVersion" //oauth
   compile "com.flickr4java:flickr:$flickrVersion"
@@ -64,4 +69,7 @@ dependencies {
   compile "org.ektorp:org.ektorp:$orgEktorpVersion"
   // other
   compile "args4j:args4j:$args4jVersion" //CLI
+
+  testCompile "org.testng:testng:$testngVersion"
+  testCompile "org.mockito:mockito-all:$mockitoVersion"
 }
