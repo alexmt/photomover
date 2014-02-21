@@ -83,6 +83,10 @@ class GoogleService[Inject](
     service.setAuthSubToken(token.accessToken, null)
     val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId?kind=album")
     var userFeed = service.getFeed(feedUrl, javaClass<UserFeed>())!!
-    return userFeed.getAlbumEntries()!!.map { Album(name = it.getTitle()!!.getPlainText()!! ) }
+    return userFeed.getAlbumEntries()!!.map {
+      Album(
+          name = it.getTitle()!!.getPlainText()!!,
+          thumbnailUrl = it.getMediaGroup()!!.getThumbnails()!!.first!!.getUrl()!! )
+    }
   }
 }

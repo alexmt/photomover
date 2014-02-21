@@ -13,7 +13,7 @@ enum class AuthorizationError {
 data class AccountInfo(
     var id: String, var firstName: String? = null, var lastName: String? = null, var email: String? = null)
 data class OAuthToken(var accessToken: String = "", var refreshToken: String? = null)
-data class Album(var name: String = "")
+data class Album(var name: String = "", var thumbnailUrl: String = "")
 
 trait CloudService {
   fun authorize(code: String): OAuthToken
