@@ -7,5 +7,5 @@ data class GoogleAppSettingsViewModel(var clientId: String, var scopes: List<Str
 data class OperationResponse<T>(
     var success: Boolean = true,
     var errorMessage: String = "",
-    var data: T? = null) {
-}
+    var data: T? = null)
+

@@ -11,11 +11,12 @@ import javax.ws.rs.POST
 import plus2flickr.services.UserService
 import plus2flickr.web.models.OperationResponse
 import plus2flickr.thirdparty.AuthorizationException
-import plus2flickr.thirdparty.UserInfo
+import plus2flickr.thirdparty.AccountInfo
 import plus2flickr.thirdparty.google.GoogleAppSettings
 import plus2flickr.web.models.GoogleAppSettingsViewModel
 import plus2flickr.web.RequestState
 import plus2flickr.domain.AccountType
+import plus2flickr.thirdparty.Album
 
 Path("/user") Produces("application/json")
 class UserResource [Inject] (
@@ -38,6 +39,10 @@ class UserResource [Inject] (
 
   GET Path("/info") fun info(): UserInfoViewModel {
     return state.getCurrentUser().getViewModel()
+  }
+
+  POST Path("/albums") fun albums(service: String): List<Album> {
+    return userService.getServiceAlbums(state.getCurrentUser(), AccountType.valueOf(service))
   }
 
   POST Path("/authorizeGoogleAccount") fun authorizeGoogleAccount(authCode: String)

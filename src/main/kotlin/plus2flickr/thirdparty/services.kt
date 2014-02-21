@@ -1,11 +1,6 @@
 package plus2flickr.thirdparty
 
-import plus2flickr.domain.OAuthToken
-
-trait CloudService {
-  fun authorize(code: String): OAuthToken
-  fun getUserInfo(token: OAuthToken): UserInfo
-}
+class AuthorizationException(val error: AuthorizationError, val message: String = "") : Exception()
 
 enum class AuthorizationError {
   SERVER_ERROR
@@ -15,10 +10,13 @@ enum class AuthorizationError {
   DUPLICATED_ACCOUNT_TYPE
 }
 
-data class UserInfo(
-    var firstName: String? = null, var lastName: String? = null, var email: String? = null) {
-}
+data class AccountInfo(
+    var id: String, var firstName: String? = null, var lastName: String? = null, var email: String? = null)
+data class OAuthToken(var accessToken: String = "", var refreshToken: String? = null)
+data class Album(var name: String = "")
 
-class AuthorizationException(val error: AuthorizationError, val message: String = "") : Exception() {
-
+trait CloudService {
+  fun authorize(code: String): OAuthToken
+  fun getAccountInfo(token: OAuthToken): AccountInfo
+  fun getAlbums(userId: String, token: OAuthToken): List<Album>
 }

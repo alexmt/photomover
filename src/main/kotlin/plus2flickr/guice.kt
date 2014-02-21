@@ -40,6 +40,7 @@ import plus2flickr.repositories.UserRepository
 import javax.servlet.ServletContextEvent
 import com.sun.jersey.api.core.ResourceConfig
 import plus2flickr.web.filters.AuthenticationResponseFilter
+import plus2flickr.domain.AccountType
 
 class GuiceContext : GuiceServletContextListener() {
   override fun getInjector(): Injector? {
@@ -55,9 +56,19 @@ class GuiceContext : GuiceServletContextListener() {
         )
         serve("/*")!!.with(javaClass<GuiceContainer>(), hashMap)
       }
-    }, DbModule(), GoogleServiceModule())
+    }, DbModule(), ServicesModule())
     injector!!.getInstance(javaClass<CouchDbManager>())!!.ensureDbExists()
     return injector
+  }
+}
+
+class ServicesModule : AbstractModule() {
+  override fun configure() {
+    install(GoogleServiceModule())
+  }
+
+  Provides fun provideUserService(users: UserRepository, google: GoogleService): UserService {
+    return UserService(users, mapOf(AccountType.GOOGLE to google))
   }
 }
 
@@ -85,7 +96,6 @@ class DbModule(
 
 class GoogleServiceModule() : AbstractModule() {
   override fun configure() {
-    bind(javaClass<CloudService>())!!.to(javaClass<GoogleService>())
   }
 
   Provides fun provideHttpTransport(): HttpTransport = GoogleNetHttpTransport.newTrustedTransport()!!
@@ -105,7 +115,8 @@ class GoogleServiceModule() : AbstractModule() {
         scopes = listOf(
             "https://www.googleapis.com/auth/plus.login",
             "https://www.googleapis.com/auth/userinfo.email",
-            "https://www.googleapis.com/auth/userinfo.profile")
+            "https://www.googleapis.com/auth/userinfo.profile",
+            "https://picasaweb.google.com/data/")
     )
   }
 }

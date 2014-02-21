@@ -9,6 +9,11 @@ angular.module('services', ['ngResource'])
         authorizeGoogleAccount: {
           method: 'POST',
           params: { action: 'authorizeGoogleAccount' }
+        },
+        albums: {
+          method: 'POST',
+          params: { action: 'albums' },
+          isArray: true
         }
       });
     }]).factory('App', ['$resource', function ($resource) {

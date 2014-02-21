@@ -7,10 +7,12 @@ angular.module('controllers', ['services'])
         $scope.userInfo = response.data;
       });
     });
-    App.googleAppSettings().$promise.then(function (value) {
+    App.googleAppSettings(function (value) {
       $scope.googleAppSettings = value;
     });
   }])
-  .controller('MainCtrl', ['$scope', 'User', 'App', function ($scope, User, App) {
-
+  .controller('MainCtrl', ['$scope', 'User', function ($scope, User) {
+    $scope.switchTo = function(service) {
+      $scope.albums = User.albums(service);
+    };
   }]);

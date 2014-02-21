@@ -9,10 +9,14 @@ import com.google.api.services.oauth2.Oauth2
 import plus2flickr.thirdparty.AuthorizationError
 import plus2flickr.thirdparty.AuthorizationException
 import com.google.api.client.auth.oauth2.TokenResponseException
-import plus2flickr.thirdparty.UserInfo
-import plus2flickr.domain.OAuthToken
+import plus2flickr.thirdparty.AccountInfo
 import com.google.api.client.auth.oauth2.TokenResponse
 import com.google.inject.Inject
+import plus2flickr.thirdparty.OAuthToken
+import plus2flickr.thirdparty.Album
+import com.google.gdata.client.photos.PicasawebService
+import com.google.gdata.data.photos.UserFeed
+import java.net.URL
 
 data class GoogleAppSettings(
     var clientId: String = "",
@@ -65,11 +69,20 @@ class GoogleService[Inject](
     }
   }
 
-  override fun getUserInfo(token: OAuthToken): UserInfo {
+  override fun getAccountInfo(token: OAuthToken): AccountInfo {
     val info = token.toGoogleToken().buildCredential().buildOAuth().userinfo()!!.get()!!.execute()!!
-    return UserInfo(
+    return AccountInfo(
+        info.getId()!!,
         firstName = info.getGivenName(),
         lastName = info.getFamilyName(),
         email = info.getEmail())
+  }
+
+  override fun getAlbums(userId: String, token: OAuthToken): List<Album> {
+    val service = PicasawebService(settings.applicationName)
+    service.setAuthSubToken(token.accessToken, null)
+    val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId?kind=album")
+    var userFeed = service.getFeed(feedUrl, javaClass<UserFeed>())!!
+    return userFeed.getAlbumEntries()!!.map { Album(name = it.getTitle()!!.getPlainText()!! ) }
   }
 }

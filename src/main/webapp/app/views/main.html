@@ -4,10 +4,14 @@
     <google-plus-signin ng-if="!userInfo.accountsState['GOOGLE']" settings="googleAppSettings"></google-plus-signin>
     <a href="#" ng-if="!userInfo.accountsState['FLICKR']" class="zocial flickr">Flickr</a>
     <h3 class="text-muted">Connected services:</h3>
-    <a href="#" ng-if="userInfo.accountsState['GOOGLE']" class="zocial googleplus">Google</a>
-    <a href="#" ng-if="userInfo.accountsState['FLICKR']" class="zocial flickr">Flickr</a>
+    <a ng-click="switchTo('GOOGLE')" ng-if="userInfo.accountsState['GOOGLE']" class="zocial googleplus">Google</a>
+    <a ng-click="switchTo('FLICKR')" ng-if="userInfo.accountsState['FLICKR']" class="zocial flickr">Flickr</a>
   </div>
   <div class="col-md-10">
-    <h3 class="text-muted">Photos will be here</h3>
+    <h3 class="text-muted">
+      <ul>
+        <li ng-repeat="album in albums">{{album.name}}</li>
+      </ul>
+    </h3>
   </div>
 </div>

@@ -4,7 +4,6 @@ import org.testng.annotations.Test
 import org.testng.annotations.Guice
 import plus2flickr.domain.User
 import plus2flickr.domain.AccountType
-import plus2flickr.domain.OAuthData
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import plus2flickr.guice.DbModule
@@ -12,6 +11,7 @@ import plus2flickr.couchdb.CouchDbManager
 import org.testng.annotations.BeforeTest
 import plus2flickr.repositories.UserRepository
 import com.google.inject.Inject
+import plus2flickr.domain.OAuthData
 
 Guice(modules = array(javaClass<DbModule>()))
 class CouchDbUserRepositoryTest[Inject](val users: UserRepository, val dbManager: CouchDbManager) {
