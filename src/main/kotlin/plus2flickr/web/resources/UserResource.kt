@@ -77,7 +77,8 @@ class UserResource [Inject] (
       Context request: HttpServletRequest, Context response: HttpServletResponse) {
     val authCode = request.getParameter(OAuthConstants.TOKEN).toString()
     val verifier = request.getParameter(OAuthConstants.VERIFIER).toString()
-    userService.authorizeFlickrAccount(state.getCurrentUser(), authCode, verifier)
+    val user = userService.authorizeFlickrAccount(state.getCurrentUser(), authCode, verifier)
+    state.changeCurrentUser(user)
     response.sendRedirect("/")
   }
 }
