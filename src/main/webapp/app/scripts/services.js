@@ -8,7 +8,7 @@ angular.module('services', ['ngResource'])
         },
         authorizeGoogleAccount: {
           method: 'POST',
-          params: { action: 'google/verify' }
+          url: 'services/user/google/verify'
         },
         albums: {
           method: 'POST',
