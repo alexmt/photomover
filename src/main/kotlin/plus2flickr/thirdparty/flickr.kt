@@ -14,13 +14,17 @@ import org.scribe.model.Verifier
 import com.flickr4java.flickr.Flickr
 import com.flickr4java.flickr.REST
 import com.flickr4java.flickr.auth.Auth
-import com.google.inject.Inject
 import com.flickr4java.flickr.auth.Permission
 import com.flickr4java.flickr.RequestContext
+import plus2flickr.thirdparty.ImageSize
+import plus2flickr.thirdparty.UrlResolver
+import com.flickr4java.flickr.photos.Size
 
 data class FlickrAppSettings(var apiKey: String = "", var apiSecret: String = "")
 
-class FlickrService[Inject](val appSettings: FlickrAppSettings) : CloudService {
+class FlickrService(val appSettings: FlickrAppSettings, val urlResolver: UrlResolver) : CloudService {
+
+  val imageSizeToFlickrSize = mapOf(ImageSize.THUMB to Size.THUMB)
 
   private fun OAuthToken.createFlickr(): Flickr {
     val flickr = Flickr(appSettings.apiKey, appSettings.apiSecret, REST())
@@ -66,13 +70,24 @@ class FlickrService[Inject](val appSettings: FlickrAppSettings) : CloudService {
   }
 
   override fun getAlbums(userId: String, token: OAuthToken): List<Album> {
-    throw UnsupportedOperationException()
+    val flickr = token.createFlickr()
+    return flickr.getPhotosetsInterface()!!.getList(userId)!!.getPhotosets()!!.map {
+      Album(it.getTitle()!!, urlResolver.getPhotoRedirectUrl(it.getPrimaryPhoto()!!.getId()!!, ImageSize.THUMB))
+    }
   }
 
   override fun requestAuthorization(callback: String): AuthorizationRequest {
     val service = getService(callback)
     val requestToken = service.getRequestToken()!!
     return AuthorizationRequest(service.getAuthorizationUrl(requestToken)!!, requestToken.getSecret()!!)
+  }
+
+  override fun getPhotoUrl(id: String, size: ImageSize, token: OAuthToken): String {
+    val photosService = token.createFlickr().getPhotosInterface()!!
+    val requiredSize = imageSizeToFlickrSize[size]
+    val sizes = photosService.getSizes(id)!!
+    val imgSize = sizes.filter { it.getLabel() == requiredSize }.firstOrNull() ?: sizes.first()
+    return imgSize.getSource()!!
   }
 
   override fun authorize(code: String): OAuthToken {

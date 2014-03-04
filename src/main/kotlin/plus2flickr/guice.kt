@@ -45,6 +45,8 @@ import plus2flickr.CloudServiceContainer
 import plus2flickr.thirdparty.flickr.FlickrService
 import java.util.Properties
 import plus2flickr.thirdparty.flickr.FlickrAppSettings
+import plus2flickr.thirdparty.UrlResolver
+import plus2flickr.ServiceUrlResolver
 
 class GuiceContext : GuiceServletContextListener() {
   override fun getInjector(): Injector? {
@@ -131,6 +133,7 @@ class GoogleServiceModule : AbstractModule() {
 class FlickrServiceModule : AbstractModule() {
   override fun configure() {}
 
+  Singleton
   Provides
   fun provideFlickrAppSettings(): FlickrAppSettings {
     val resource = javaClass<GuiceContext>().getResource("/flickr_app.properties")
@@ -140,5 +143,10 @@ class FlickrServiceModule : AbstractModule() {
     val properties = Properties()
     properties.load(resource.openStream())
     return FlickrAppSettings(apiKey = properties.get("apiKey").toString(), apiSecret = properties.get("apiSecret").toString())
+  }
+
+  Provides
+  fun provideFlickrService(settings: FlickrAppSettings): FlickrService {
+    return FlickrService(settings, ServiceUrlResolver(AccountType.FLICKR))
   }
 }

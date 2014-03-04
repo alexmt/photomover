@@ -13,10 +13,19 @@ import plus2flickr.domain.UserInfo
 import plus2flickr.CloudServiceContainer
 import plus2flickr.thirdparty.OAuthToken
 import com.google.inject.Inject
+import plus2flickr.thirdparty.ImageSize
 
 class UserService[Inject](
     val users: UserRepository,
     val servicesContainer: CloudServiceContainer) {
+
+  private fun User.getAuthData(accountType: AccountType): OAuthData {
+    val authData = this.accounts[accountType]
+    if (authData == null) {
+      throw IllegalArgumentException("User does not have account of type '$accountType'")
+    }
+    return authData
+  }
 
   private fun enrichUserInfo(info: UserInfo, accountInfo: AccountInfo) {
     info.email = info.email ?: accountInfo.email
@@ -89,11 +98,14 @@ class UserService[Inject](
     return authorizeCloudService(user, oauth1Authorizer(token, secret, verifier), AccountType.FLICKR)
   }
 
+  fun getPhotoUrl(user: User, accountType: AccountType, photoId: String, size: ImageSize): String {
+    val authData = user.getAuthData(accountType)
+    val service = servicesContainer.get(accountType)
+    return service.getPhotoUrl(photoId, size, authData.token)
+  }
+
   fun getServiceAlbums(user: User, accountType: AccountType): List<Album> {
-    val authData  = user.accounts[accountType]
-    if (authData == null) {
-      throw IllegalArgumentException("User does not have account of type '$accountType'")
-    }
+    val authData = user.getAuthData(accountType)
     val service = servicesContainer.get(accountType)
     return service.getAlbums(authData.id, authData.token)
   }

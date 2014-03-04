@@ -18,6 +18,7 @@ import com.google.gdata.client.photos.PicasawebService
 import com.google.gdata.data.photos.UserFeed
 import java.net.URL
 import plus2flickr.thirdparty.AuthorizationRequest
+import plus2flickr.thirdparty.ImageSize
 
 data class GoogleAppSettings(
     var clientId: String = "",
@@ -92,6 +93,10 @@ class GoogleService[Inject](
   }
 
   override fun authorize(code: String, requestSecret: String, verifier: String): OAuthToken {
+    throw UnsupportedOperationException()
+  }
+
+  override fun getPhotoUrl(id: String, size: ImageSize, token: OAuthToken): String {
     throw UnsupportedOperationException()
   }
 

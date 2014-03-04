@@ -1,5 +1,7 @@
 package plus2flickr.thirdparty
 
+import plus2flickr.domain.AccountType
+
 class AuthorizationException(val error: AuthorizationError, val message: String = "") : Exception()
 
 enum class AuthorizationError {
@@ -16,6 +18,13 @@ data class OAuthToken(
     var accessToken: String = "", var refreshToken: String? = null, var oauth1TokenSecret: String? = null)
 data class Album(var name: String = "", var thumbnailUrl: String = "")
 data class AuthorizationRequest(val url : String, val secret: String)
+enum class ImageSize {
+  THUMB
+}
+
+trait UrlResolver {
+  fun getPhotoRedirectUrl(id: String, size: ImageSize): String
+}
 
 trait OAuth1Service {
   fun authorize(token: String, requestSecret: String, verifier: String): OAuthToken
@@ -29,4 +38,5 @@ trait OAuth2Service {
 trait CloudService : OAuth1Service, OAuth2Service {
   fun getAccountInfo(token: OAuthToken): AccountInfo
   fun getAlbums(userId: String, token: OAuthToken): List<Album>
+  fun getPhotoUrl(id: String, size: ImageSize, token: OAuthToken): String
 }

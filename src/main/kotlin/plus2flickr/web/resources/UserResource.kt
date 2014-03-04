@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletResponse
 import com.google.common.base.CharMatcher
 import com.google.inject.Inject
 import org.scribe.model.OAuthConstants
+import javax.ws.rs.PathParam
+import plus2flickr.thirdparty.ImageSize
 
 Path("/user") Produces("application/json")
 class UserResource [Inject] (
@@ -44,6 +46,13 @@ class UserResource [Inject] (
 
   POST Path("/albums") fun albums(service: String): List<Album> {
     return userService.getServiceAlbums(state.getCurrentUser(), AccountType.valueOf(service))
+  }
+
+  GET Path("/photo/redirect/{account}/{id}/{size}") fun goToPhoto(Context response: HttpServletResponse,
+      PathParam("account") account: String, PathParam("id") id: String, PathParam("size") size: String) {
+    val accountType = AccountType.valueOf(account.capitalize())
+    val imageSize = ImageSize.valueOf(size)
+    response.sendRedirect(userService.getPhotoUrl(state.getCurrentUser(), accountType, id, imageSize))
   }
 
   POST Path("/google/verify") fun verifyGoogle(authCode: String)
