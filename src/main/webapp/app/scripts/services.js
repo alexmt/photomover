@@ -8,7 +8,7 @@ angular.module('services', ['ngResource'])
         },
         authorizeGoogleAccount: {
           method: 'POST',
-          params: { action: 'authorizeGoogleAccount' }
+          params: { action: 'google/verify' }
         },
         albums: {
           method: 'POST',
@@ -20,7 +20,7 @@ angular.module('services', ['ngResource'])
       return $resource('services/app/:action', {}, {
         googleAppSettings: {
           method: 'GET',
-          params: { action: 'googleAppSettings' }
+          url: 'services/app/google/settings'
         }
       });
     }]);

@@ -11,8 +11,11 @@ angular.module('controllers', ['services'])
       $scope.googleAppSettings = value;
     });
   }])
-  .controller('MainCtrl', ['$scope', 'User', function ($scope, User) {
+  .controller('MainCtrl', ['$scope', '$window', 'User', function ($scope, $window, User) {
     $scope.switchTo = function(service) {
       $scope.albums = User.albums(service);
+    };
+    $scope.signInToFlickr = function() {
+      window.location.href = 'services/user/flickr/authorize';
     };
   }]);

@@ -52,7 +52,7 @@ dependencies {
   compile "commons-io:commons-io:$commonsIoVersion"
   compile "com.google.guava:guava:$guavaVersion"
   // services
-  runtime 'javax.mail:mail:1.4'
+  runtime "javax.mail:mail:1.4"
   compile "org.scribe:scribe:$scribeVersion" //oauth
   compile "com.flickr4java:flickr:$flickrVersion"
   compile "com.google.api-client:google-api-client:$googleApiClientVersion"

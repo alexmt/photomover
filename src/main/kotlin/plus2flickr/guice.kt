@@ -41,6 +41,10 @@ import javax.servlet.ServletContextEvent
 import com.sun.jersey.api.core.ResourceConfig
 import plus2flickr.web.filters.AuthenticationResponseFilter
 import plus2flickr.domain.AccountType
+import plus2flickr.CloudServiceContainer
+import plus2flickr.thirdparty.flickr.FlickrService
+import java.util.Properties
+import plus2flickr.thirdparty.flickr.FlickrAppSettings
 
 class GuiceContext : GuiceServletContextListener() {
   override fun getInjector(): Injector? {
@@ -65,10 +69,14 @@ class GuiceContext : GuiceServletContextListener() {
 class ServicesModule : AbstractModule() {
   override fun configure() {
     install(GoogleServiceModule())
+    install(FlickrServiceModule())
   }
 
-  Provides fun provideUserService(users: UserRepository, google: GoogleService): UserService {
-    return UserService(users, mapOf(AccountType.GOOGLE to google))
+  Provides fun provideServiceContainer(google: GoogleService, flickr: FlickrService): CloudServiceContainer {
+    val container = CloudServiceContainer()
+    container.register(AccountType.GOOGLE, google)
+    container.register(AccountType.FLICKR, flickr)
+    return container
   }
 }
 
@@ -94,9 +102,8 @@ class DbModule(
   }
 }
 
-class GoogleServiceModule() : AbstractModule() {
-  override fun configure() {
-  }
+class GoogleServiceModule : AbstractModule() {
+  override fun configure() {}
 
   Provides fun provideHttpTransport(): HttpTransport = GoogleNetHttpTransport.newTrustedTransport()!!
 
@@ -118,5 +125,20 @@ class GoogleServiceModule() : AbstractModule() {
             "https://www.googleapis.com/auth/userinfo.profile",
             "https://picasaweb.google.com/data/")
     )
+  }
+}
+
+class FlickrServiceModule : AbstractModule() {
+  override fun configure() {}
+
+  Provides
+  fun provideFlickrAppSettings(): FlickrAppSettings {
+    val resource = javaClass<GuiceContext>().getResource("/flickr_app.properties")
+    if (resource == null) {
+      throw IOException("Resource /flickr_app.properties not found")
+    }
+    val properties = Properties()
+    properties.load(resource.openStream())
+    return FlickrAppSettings(apiKey = properties.get("apiKey").toString(), apiSecret = properties.get("apiSecret").toString())
   }
 }

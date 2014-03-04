@@ -17,6 +17,7 @@ import plus2flickr.thirdparty.Album
 import com.google.gdata.client.photos.PicasawebService
 import com.google.gdata.data.photos.UserFeed
 import java.net.URL
+import plus2flickr.thirdparty.AuthorizationRequest
 
 data class GoogleAppSettings(
     var clientId: String = "",
@@ -88,5 +89,13 @@ class GoogleService[Inject](
           name = it.getTitle()!!.getPlainText()!!,
           thumbnailUrl = it.getMediaGroup()!!.getThumbnails()!!.first!!.getUrl()!! )
     }
+  }
+
+  override fun authorize(code: String, requestSecret: String, verifier: String): OAuthToken {
+    throw UnsupportedOperationException()
+  }
+
+  override fun requestAuthorization(callback: String): AuthorizationRequest {
+    throw UnsupportedOperationException()
   }
 }
