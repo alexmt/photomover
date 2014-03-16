@@ -1,10 +1,16 @@
 plus2flickr
 ===========
 
-Move Google+ photos to Flickr
+A Web Application which allows to manage photos/pictures stored in Google Plus/Flickr including following:
 
-1. Download photos at https://www.google.com/settings/takeout/custom
-2. Group unsorted photos by month:
+- view, delete and organize photos into albums;
+- convenient bulk upload;
+- move/copy photos between Google Plus/Flickr accounts;
+- scheduled operations (e.g. move all photos from Google Plus auto upload album to specified Flickr collection);
+
+CLI Utils:
+
+- Group unsorted photos by month:
 
   plus2flickr.jar organize -s /Photos -o /Photos/Unsorted -deleteSource True
 
@@ -12,7 +18,7 @@ Move Google+ photos to Flickr
   -o - output directory
   -deleteSource - DELETE source directories if true
 
-3. Upload photos to Flickr
+- Upload photos to Flickr
 
   upload -s /home/matyushentsev/Pictures/Google -appKey [yourAppKey] -appSecret [yourAppSecret]
 
