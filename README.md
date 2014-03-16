@@ -1,4 +1,4 @@
-plus2flickr
+plus2flickr [![Build Status](https://travis-ci.org/alexmt/plus2flickr.png?branch=master)](https://travis-ci.org/alexmt/plus2flickr)
 ===========
 
 A Web Application which allows to manage photos/pictures stored in Google Plus/Flickr including following:
