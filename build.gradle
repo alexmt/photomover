@@ -1,5 +1,3 @@
-import org.gradle.api.plugins.jetty.internal.Monitor
-
 buildscript {
   repositories {
     mavenCentral()
@@ -14,29 +12,14 @@ buildscript {
 apply plugin: "application"
 
 applicationName = "Plus2Flickr"
-mainClassName = "plus2flickr.Plus2flickrPackage"
+mainClassName = "plus2flickr.cli.CliPackage"
 
 apply plugin: "kotlin"
-apply plugin: "jetty"
 apply plugin: "grunt"
 
 test {
   useTestNG()
 }
-
-jettyRun {
-  contextPath = "services"
-  scanIntervalSeconds = 1
-  daemon = false
-  doLast {
-    if (getStopPort() != null && getStopPort() > 0 && getStopKey() != null) {
-      Monitor monitor = new Monitor(getStopPort(), getStopKey(), server.getProxiedObject());
-      monitor.start();
-    }
-  }
-}
-[jettyRun, jettyStop]*.stopPort = 8081
-[jettyRun, jettyStop]*.stopKey = 'jettyStop'
 
 repositories {
   mavenCentral()
@@ -67,12 +50,15 @@ dependencies {
   compile files("libs/data-photos-meta-2.0.jar")
   // web
   compile "javax.servlet:servlet-api:$servletApiVersion"
+  compile "org.eclipse.jetty:jetty-server:$jettyVersion"
+  compile "org.eclipse.jetty:jetty-servlet:$jettyVersion"
   compile "com.google.inject.extensions:guice-servlet:$guiceServletVersion"
   compile "com.sun.jersey:jersey-server:$jerseyVersion"
   compile "com.sun.jersey:jersey-bundle:$jerseyVersion"
   compile "com.sun.jersey:jersey-servlet:$jerseyVersion"
   compile "com.sun.jersey.contribs:jersey-guice:$jerseyVersion"
   compile "com.sun.jersey:jersey-json:$jerseyVersion"
+
   // couch db api
   compile "org.ektorp:org.ektorp:$orgEktorpVersion"
   // other
