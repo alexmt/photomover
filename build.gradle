@@ -67,3 +67,5 @@ dependencies {
   testCompile "org.testng:testng:$testngVersion"
   testCompile "org.mockito:mockito-all:$mockitoVersion"
 }
+
+task stage(dependsOn: ["installApp"])

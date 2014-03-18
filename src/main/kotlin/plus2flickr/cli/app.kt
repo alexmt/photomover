@@ -25,6 +25,7 @@ fun main(arguments: Array<String>) {
     println("Command '${args[0]}' is not supported.")
     println("Please specify one of following: ${commands.keySet()}")
   } else {
+    println("Starting ${args[0]}")
     command(args.drop(1))
   }
 }
@@ -39,6 +40,7 @@ fun wrapOperation<T>(
       println(ex.getMessage())
       println(parser.printUsage(System.err))
     }
+    println("args: $defaultOptions")
     operation(defaultOptions)
   }
 }
