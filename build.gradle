@@ -6,6 +6,7 @@ buildscript {
   dependencies {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     classpath "com.moowork.gradle:gradle-grunt-plugin:$gruntPluginVersion"
+    classpath "com.moowork.gradle:gradle-node-plugin:$nodePluginVersion"
   }
 }
 
@@ -16,10 +17,19 @@ mainClassName = "plus2flickr.cli.CliPackage"
 
 apply plugin: "kotlin"
 apply plugin: "grunt"
+apply plugin: "node"
+
+node {
+  version = '0.10.22'
+  download = true
+}
 
 test {
   useTestNG()
 }
+
+task grunt_build(dependsOn: ["npmInstall"])
+task stage(dependsOn: ["grunt_build", "installApp"])
 
 repositories {
   mavenCentral()
@@ -67,5 +77,3 @@ dependencies {
   testCompile "org.testng:testng:$testngVersion"
   testCompile "org.mockito:mockito-all:$mockitoVersion"
 }
-
-task stage(dependsOn: ["installApp"])
