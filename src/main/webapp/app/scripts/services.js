@@ -1,14 +1,14 @@
 'use strict';
 angular.module('services', ['ngResource'])
     .factory('User', ['$resource', function ($resource) {
-      return $resource('services/user/:action', {}, {
+      return $resource('/services/user/:action', {}, {
         info: {
           method: 'GET',
           params: { action: 'info' }
         },
         authorizeGoogleAccount: {
           method: 'POST',
-          url: 'services/user/google/verify'
+          url: '/services/user/google/verify'
         },
         albums: {
           method: 'POST',
@@ -17,10 +17,10 @@ angular.module('services', ['ngResource'])
         }
       });
     }]).factory('App', ['$resource', function ($resource) {
-      return $resource('services/app/:action', {}, {
+      return $resource('/services/app/:action', {}, {
         googleAppSettings: {
           method: 'GET',
-          url: 'services/app/google/settings'
+          url: '/services/app/google/settings'
         }
       });
     }]);

@@ -19,12 +19,16 @@ import com.google.inject.Guice
 import plus2flickr.couchdb.CouchDbManager
 import org.codehaus.jackson.map.ObjectMapper
 import plus2flickr.guice.WebServicesModule
+import org.eclipse.jetty.server.handler.HandlerList
+import org.eclipse.jetty.server.handler.ResourceHandler
+import org.eclipse.jetty.server.handler.ContextHandler
 
 data class StartWebOptions(
     Option("-p") var port: Int = 8080,
     Option("-couchDb") var couchDb: String = "http://localhost:5984",
     Option("-flickrAppSettings") var flickrAppSettings: String? = null,
-    Option("-googleAppSettings") var googleAppSettings: String? = null) {
+    Option("-googleAppSettings") var googleAppSettings: String? = null,
+    Option("-staticContentPath") var staticContentPath: String = "src/main/webapp/app") {
 
   private fun readResource(path: String): String {
     val resource = javaClass<StartWebOptions>().getResource(path)
@@ -57,9 +61,9 @@ data class StartWebOptions(
 }
 
 fun start(options: StartWebOptions) {
-  val context = ServletContextHandler()
-  context.setContextPath("/services")
-  context.addEventListener(object : GuiceServletContextListener() {
+  val servicesContext = ServletContextHandler()
+  servicesContext.setContextPath("/services")
+  servicesContext.addEventListener(object : GuiceServletContextListener() {
     override fun getInjector(): Injector? {
       val injector = Guice.createInjector(
           WebServicesModule(),
@@ -69,10 +73,19 @@ fun start(options: StartWebOptions) {
       return injector
     }
   })
-  context.addFilter(javaClass<GuiceFilter>(), "/*", EnumSet.of(DispatcherType.REQUEST))
+  servicesContext.addFilter(javaClass<GuiceFilter>(), "/*", EnumSet.of(DispatcherType.REQUEST))
+
+  // TODO(amatyushentsev): stop serving static content in app server
+  val resourcesHandler = ResourceHandler()
+  resourcesHandler.setResourceBase(options.staticContentPath)
+  val staticContext = ContextHandler("/")
+  staticContext.setHandler(resourcesHandler)
+
+  var handlers = HandlerList()
+  handlers.setHandlers(array(servicesContext, staticContext))
 
   val server = Server(options.port)
-  server.setHandler(context)
+  server.setHandler(handlers)
   server.start()
   server.join()
 }
