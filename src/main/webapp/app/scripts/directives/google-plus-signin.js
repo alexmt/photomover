@@ -16,7 +16,7 @@ angular.module('directive.google-plus-signin', []).
     }
 
     function tryRenderElement(element, settings) {
-      if (angular.isDefined($window.gapi) && $window.gapi.login && settings) {
+      if (angular.isDefined($window.gapi) && settings) {
         renderElement(element, settings);
       } else {
         pendingItems.push({ element: element, settings: settings});
