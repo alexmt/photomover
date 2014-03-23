@@ -11,4 +11,4 @@ dist
 .sass-cache
 
 src/main/resources/client_secret.json
-src/main/resources/flickr_app.properties
+src/main/resources/flickr_app.json

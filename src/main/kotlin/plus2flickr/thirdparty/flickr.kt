@@ -79,7 +79,8 @@ class FlickrService(val appSettings: FlickrAppSettings, val urlResolver: UrlReso
   override fun requestAuthorization(callback: String): AuthorizationRequest {
     val service = getService(callback)
     val requestToken = service.getRequestToken()!!
-    return AuthorizationRequest(service.getAuthorizationUrl(requestToken)!!, requestToken.getSecret()!!)
+    val authorizationUrl = service.getAuthorizationUrl(requestToken)!! + "&perms=delete"
+    return AuthorizationRequest(authorizationUrl, requestToken.getSecret()!!)
   }
 
   override fun getPhotoUrl(id: String, size: ImageSize, token: OAuthToken): String {

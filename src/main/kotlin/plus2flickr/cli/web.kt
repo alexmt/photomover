@@ -39,10 +39,8 @@ data class StartWebOptions(
   }
 
   fun getFlickrAppSettings(): FlickrAppSettings {
-    val properties = Properties()
-    properties.load(StringReader(flickrAppSettings ?: readResource("/flickr_app.properties")))
-    return FlickrAppSettings(
-        apiKey = properties.get("apiKey").toString(), apiSecret = properties.get("apiSecret").toString())
+    val settings = flickrAppSettings ?: readResource("/flickr_app.json")
+    return ObjectMapper().readValue(settings.getBytes(), javaClass<FlickrAppSettings>())!!
   }
 
   fun getGoogleAppSettings(): GoogleAppSettings {
