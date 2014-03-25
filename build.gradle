@@ -24,11 +24,13 @@ node {
   download = true
 }
 
-test {
-  useTestNG()
-}
+task setupGrunt(dependsOn: ["installGrunt", "npmInstall"])
+grunt_test.dependsOn("setupGrunt")
+grunt_build.dependsOn("setupGrunt")
 
-task grunt_build(dependsOn: ["npmInstall"])
+test.useTestNG()
+test.dependsOn(["grunt_test"])
+
 task stage(dependsOn: ["grunt_build", "installApp"])
 
 repositories {
