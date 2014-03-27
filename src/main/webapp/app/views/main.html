@@ -20,8 +20,8 @@
     <a ng-click="signInToGoogle()" ng-if="!userInfo.accountsState['GOOGLE']" class="zocial googleplus">Google</a>
     <a ng-click="signInToFlickr()" ng-if="!userInfo.accountsState['FLICKR']" class="zocial flickr">Flickr</a>
     <h3 class="text-muted">Connected services:</h3>
-    <a ng-click="switchTo('GOOGLE')" ng-if="userInfo.accountsState['GOOGLE']" class="zocial googleplus">Google</a>
-    <a ng-click="switchTo('FLICKR')" ng-if="userInfo.accountsState['FLICKR']" class="zocial flickr">Flickr</a>
+    <a ng-click="showAlbums('GOOGLE')" ng-if="userInfo.accountsState['GOOGLE']" class="zocial googleplus">Google</a>
+    <a ng-click="showAlbums('FLICKR')" ng-if="userInfo.accountsState['FLICKR']" class="zocial flickr">Flickr</a>
   </div>
   <div class="col-md-10">
     <h3 class="text-muted">
