@@ -1,5 +1,7 @@
 'use strict';
 
+angular.module('controllers', ['services']);
+
 angular.module('webApp', [
     'controllers',
     'ngRoute',
