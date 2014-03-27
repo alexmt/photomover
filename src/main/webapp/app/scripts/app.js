@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('controllers', ['services']);
+angular.module('services', ['ngResource']);
 
 angular.module('webApp', [
     'controllers',
-    'ngRoute',
-    'directive.google-plus-signin'
+    'ngRoute'
   ]).config(function ($routeProvider) {
     $routeProvider
       .when('/', {
