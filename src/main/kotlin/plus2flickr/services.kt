@@ -14,6 +14,7 @@ import plus2flickr.CloudServiceContainer
 import plus2flickr.thirdparty.OAuthToken
 import com.google.inject.Inject
 import plus2flickr.thirdparty.ImageSize
+import plus2flickr.thirdparty.Photo
 
 class UserService[Inject](
     val users: UserRepository,
@@ -108,5 +109,11 @@ class UserService[Inject](
     val authData = user.getAuthData(accountType)
     val service = servicesContainer.get(accountType)
     return service.getAlbums(authData.id, authData.token)
+  }
+
+  fun getAlbumPhotos(user: User, accountType: AccountType, albumId: String) : List<Photo> {
+    val authData = user.getAuthData(accountType)
+    val service = servicesContainer.get(accountType)
+    return service.getPhotos(authData.id, authData.token, albumId)
   }
 }

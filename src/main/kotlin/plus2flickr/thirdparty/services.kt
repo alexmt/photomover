@@ -16,7 +16,8 @@ data class AccountInfo(
     var id: String, var firstName: String? = null, var lastName: String? = null, var email: String? = null)
 data class OAuthToken(
     var accessToken: String = "", var refreshToken: String? = null, var oauth1TokenSecret: String? = null)
-data class Album(var name: String = "", var thumbnailUrl: String = "")
+data class Album(var id: String = "", var name: String = "", var thumbnailUrl: String = "")
+data class Photo(var id: String = "", var name: String = "", var url: String = "")
 data class AuthorizationRequest(val url : String, val secret: String)
 enum class ImageSize {
   THUMB
@@ -38,5 +39,6 @@ trait OAuth2Service {
 trait CloudService : OAuth1Service, OAuth2Service {
   fun getAccountInfo(token: OAuthToken): AccountInfo
   fun getAlbums(userId: String, token: OAuthToken): List<Album>
+  fun getPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo>
   fun getPhotoUrl(id: String, size: ImageSize, token: OAuthToken): String
 }

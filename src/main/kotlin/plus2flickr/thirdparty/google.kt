@@ -19,6 +19,9 @@ import com.google.gdata.data.photos.UserFeed
 import java.net.URL
 import plus2flickr.thirdparty.AuthorizationRequest
 import plus2flickr.thirdparty.ImageSize
+import plus2flickr.thirdparty.Photo
+import com.google.gdata.data.photos.PhotoFeed
+import com.google.gdata.data.photos.AlbumFeed
 
 data class GoogleAppSettings(
     var clientId: String = "",
@@ -37,6 +40,12 @@ class GoogleService[Inject](
     response.setAccessToken(accessToken)
     response.setRefreshToken(refreshToken)
     return response
+  }
+
+  private fun OAuthToken.picasaService(): PicasawebService {
+    val service = PicasawebService(settings.applicationName)
+    service.setAuthSubToken(this.accessToken, null)
+    return service
   }
 
   private fun TokenResponse.buildCredential(): GoogleCredential = GoogleCredential.Builder()
@@ -81,14 +90,23 @@ class GoogleService[Inject](
   }
 
   override fun getAlbums(userId: String, token: OAuthToken): List<Album> {
-    val service = PicasawebService(settings.applicationName)
-    service.setAuthSubToken(token.accessToken, null)
     val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId?kind=album")
-    var userFeed = service.getFeed(feedUrl, javaClass<UserFeed>())!!
+    var userFeed = token.picasaService().getFeed(feedUrl, javaClass<UserFeed>())!!
     return userFeed.getAlbumEntries()!!.map {
       Album(
+          id = it.getGphotoId()!!,
           name = it.getTitle()!!.getPlainText()!!,
           thumbnailUrl = it.getMediaGroup()!!.getThumbnails()!!.first!!.getUrl()!! )
+    }
+  }
+
+  override fun getPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo> {
+    val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId/albumid/$albumId")
+    var userFeed = token.picasaService().getFeed(feedUrl, javaClass<AlbumFeed>())!!
+    return userFeed.getPhotoEntries()!!.map {
+      Photo(
+          url = it.getMediaThumbnails()!!.maxBy { it.getHeight() }!!.getUrl()!!
+      )
     }
   }
 

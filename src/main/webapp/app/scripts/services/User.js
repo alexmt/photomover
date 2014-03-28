@@ -15,6 +15,11 @@ angular.module('services')
         method: 'POST',
         params: { action: 'albums' },
         isArray: true
+      },
+      photos: {
+        method: 'POST',
+        isArray: true,
+        params: { action: 'photos' }
       }
     });
   }]);

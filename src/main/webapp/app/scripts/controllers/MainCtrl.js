@@ -13,9 +13,19 @@ angular.module('controllers')
     }
 
     User.info(applyUserInfo);
+    $scope.viewContext = {};
 
     $scope.showAlbums = function(service) {
-      $scope.albums = User.albums(service);
+      $scope.albums = User.albums({ service: service });
+      $scope.viewContext = { service : service };
+    };
+
+    $scope.showPhotos = function(albumId) {
+      $scope.albums = [];
+      $scope.photos = User.photos({
+        service: $scope.viewContext.service,
+        albumId: albumId
+      });
     };
 
     $scope.signInToFlickr = function() {
@@ -25,7 +35,7 @@ angular.module('controllers')
     $scope.signInToGoogle = function() {
       App.googleAppSettings(function(settings) {
         Google.authorize(settings).then(function(code) {
-          User.authorizeGoogleAccount(code, function (response) {
+          User.authorizeGoogleAccount( { code: code }, function (response) {
             applyUserInfo(response.data);
           });
         });

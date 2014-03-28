@@ -19,6 +19,7 @@ import com.flickr4java.flickr.RequestContext
 import plus2flickr.thirdparty.ImageSize
 import plus2flickr.thirdparty.UrlResolver
 import com.flickr4java.flickr.photos.Size
+import plus2flickr.thirdparty.Photo
 
 data class FlickrAppSettings(var apiKey: String = "", var apiSecret: String = "")
 
@@ -72,8 +73,15 @@ class FlickrService(val appSettings: FlickrAppSettings, val urlResolver: UrlReso
   override fun getAlbums(userId: String, token: OAuthToken): List<Album> {
     val flickr = token.createFlickr()
     return flickr.getPhotosetsInterface()!!.getList(userId)!!.getPhotosets()!!.map {
-      Album(it.getTitle()!!, urlResolver.getPhotoRedirectUrl(it.getPrimaryPhoto()!!.getId()!!, ImageSize.THUMB))
+      Album(
+          id = it.getId()!!,
+          name = it.getTitle()!!,
+          thumbnailUrl = urlResolver.getPhotoRedirectUrl(it.getPrimaryPhoto()!!.getId()!!, ImageSize.THUMB))
     }
+  }
+
+  override fun getPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo> {
+    throw UnsupportedOperationException()
   }
 
   override fun requestAuthorization(callback: String): AuthorizationRequest {

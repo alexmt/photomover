@@ -20,6 +20,8 @@ import com.google.inject.Inject
 import org.scribe.model.OAuthConstants
 import javax.ws.rs.PathParam
 import plus2flickr.thirdparty.ImageSize
+import plus2flickr.thirdparty.Photo
+import javax.ws.rs.FormParam
 
 Path("/user") Produces("application/json")
 class UserResource [Inject] (
@@ -44,8 +46,13 @@ class UserResource [Inject] (
     return state.getCurrentUser().getViewModel()
   }
 
-  POST Path("/albums") fun albums(service: String): List<Album> {
+  POST Path("/albums") fun albums(FormParam("service") service: String): List<Album> {
     return userService.getServiceAlbums(state.getCurrentUser(), AccountType.valueOf(service))
+  }
+
+  POST Path("/photos") fun photos(
+      FormParam("albumId") albumId: String, FormParam("service") service: String): List<Photo> {
+    return userService.getAlbumPhotos(state.getCurrentUser(), AccountType.valueOf(service), albumId)
   }
 
   GET Path("/photo/redirect/{account}/{id}/{size}") fun goToPhoto(Context response: HttpServletResponse,
@@ -55,10 +62,10 @@ class UserResource [Inject] (
     response.sendRedirect(userService.getPhotoUrl(state.getCurrentUser(), accountType, id, imageSize))
   }
 
-  POST Path("/google/verify") fun verifyGoogle(authCode: String)
+  POST Path("/google/verify") fun verifyGoogle(FormParam("code") code: String)
       : OperationResponse<UserInfoViewModel> {
     try {
-      val user = userService.authorizeGoogleAccount(state.getCurrentUser(), authCode)
+      val user = userService.authorizeGoogleAccount(state.getCurrentUser(), code)
       state.changeCurrentUser(user)
       return OperationResponse(data = user.getViewModel(), success = true)
     } catch (e: AuthorizationException){
