@@ -114,6 +114,6 @@ class UserService[Inject](
   fun getAlbumPhotos(user: User, accountType: AccountType, albumId: String) : List<Photo> {
     val authData = user.getAuthData(accountType)
     val service = servicesContainer.get(accountType)
-    return service.getPhotos(authData.id, authData.token, albumId)
+    return service.getPhotos(authData.id, authData.token, albumId, ImageSize.THUMB)
   }
 }

@@ -100,7 +100,7 @@ class GoogleService[Inject](
     }
   }
 
-  override fun getPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo> {
+  override fun getPhotos(userId: String, token: OAuthToken, albumId: String, size: ImageSize): List<Photo> {
     val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId/albumid/$albumId")
     var userFeed = token.picasaService().getFeed(feedUrl, javaClass<AlbumFeed>())!!
     return userFeed.getPhotoEntries()!!.map {

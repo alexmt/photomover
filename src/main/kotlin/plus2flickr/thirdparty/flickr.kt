@@ -25,7 +25,9 @@ data class FlickrAppSettings(var apiKey: String = "", var apiSecret: String = ""
 
 class FlickrService(val appSettings: FlickrAppSettings, val urlResolver: UrlResolver) : CloudService {
 
-  val imageSizeToFlickrSize = mapOf(ImageSize.THUMB to Size.THUMB)
+  val imageSizeToFlickrSize = mapOf(
+      ImageSize.THUMB to Size.THUMB,
+      ImageSize.LARGE to Size.LARGE)
 
   private fun OAuthToken.createFlickr(): Flickr {
     val flickr = Flickr(appSettings.apiKey, appSettings.apiSecret, REST())
@@ -80,8 +82,13 @@ class FlickrService(val appSettings: FlickrAppSettings, val urlResolver: UrlReso
     }
   }
 
-  override fun getPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo> {
-    throw UnsupportedOperationException()
+  override fun getPhotos(userId: String, token: OAuthToken, albumId: String, size: ImageSize): List<Photo> {
+    return token.createFlickr().getPhotosetsInterface()!!.getPhotos(albumId, 0, 0)!!.map {
+      Photo(
+          id = it.getId()!!,
+          name = it.getTitle()!!,
+          url = urlResolver.getPhotoRedirectUrl(it.getId()!!, size))
+    }
   }
 
   override fun requestAuthorization(callback: String): AuthorizationRequest {

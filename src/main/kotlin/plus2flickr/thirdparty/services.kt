@@ -19,8 +19,10 @@ data class OAuthToken(
 data class Album(var id: String = "", var name: String = "", var thumbnailUrl: String = "")
 data class Photo(var id: String = "", var name: String = "", var url: String = "")
 data class AuthorizationRequest(val url : String, val secret: String)
+
 enum class ImageSize {
   THUMB
+  LARGE
 }
 
 trait UrlResolver {
@@ -39,6 +41,6 @@ trait OAuth2Service {
 trait CloudService : OAuth1Service, OAuth2Service {
   fun getAccountInfo(token: OAuthToken): AccountInfo
   fun getAlbums(userId: String, token: OAuthToken): List<Album>
-  fun getPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo>
+  fun getPhotos(userId: String, token: OAuthToken, albumId: String, size: ImageSize): List<Photo>
   fun getPhotoUrl(id: String, size: ImageSize, token: OAuthToken): String
 }
