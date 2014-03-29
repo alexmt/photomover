@@ -13,17 +13,18 @@ angular.module('controllers')
     }
 
     User.info(applyUserInfo);
-    $scope.viewContext = {};
 
     $scope.showAlbums = function(service) {
+      $scope.photos = [];
       $scope.albums = User.albums({ service: service });
-      $scope.viewContext = { service : service };
+      $scope.service = service;
     };
 
-    $scope.showPhotos = function(albumId) {
+    $scope.showPhotos = function(albumId, albumName) {
+      $scope.albumName = albumName;
       $scope.albums = [];
       $scope.photos = User.photos({
-        service: $scope.viewContext.service,
+        service: $scope.service,
         albumId: albumId
       });
     };

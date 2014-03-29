@@ -24,13 +24,14 @@
     <a ng-click="showAlbums('FLICKR')" ng-if="userInfo.accountsState['FLICKR']" class="zocial flickr">Flickr</a>
   </div>
   <div class="col-md-10">
-    <h3 class="text-muted">
-      <div ng-repeat="album in albums" class="pull-left">
-        <img ng-click="showPhotos(album.id)" ng-src="{{album.thumbnailUrl}}" title="{{album.name}}">
-      </div>
+    <div ng-repeat="album in albums" class="pull-left">
+      <img ng-click="showPhotos(album.id, album.name)" ng-src="{{album.thumbnailUrl}}" title="{{album.name}}">
+    </div>
+    <div ng-if="photos.length">
+      <h3 class="text-muted">{{albumName}}</h3>
       <div ng-repeat="photo in photos" class="pull-left">
         <img ng-src="{{photo.url}}" title="{{photo.name}}">
       </div>
-    </h3>
+    </div>
   </div>
 </div>
