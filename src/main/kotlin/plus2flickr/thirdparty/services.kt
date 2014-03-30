@@ -3,6 +3,7 @@ package plus2flickr.thirdparty
 import plus2flickr.domain.AccountType
 
 class AuthorizationException(val error: AuthorizationError, val message: String = "") : Exception()
+class InvalidTokenException(): Exception()
 
 enum class AuthorizationError {
   SERVER_ERROR

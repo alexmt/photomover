@@ -4,13 +4,13 @@ import org.ektorp.support.CouchDbDocument
 import plus2flickr.thirdparty.AccountInfo
 import plus2flickr.thirdparty.OAuthToken
 
-enum class AccountType(val id: Int) {
-  GOOGLE: AccountType(1)
-  FLICKR: AccountType(2)
+enum class AccountType(val id: Int, val isOAuth2: Boolean) {
+  GOOGLE: AccountType(1, true)
+  FLICKR: AccountType(2, false)
 }
 
 data class UserInfo(var firstName: String? = null, var lastName: String? = null, var email: String? = null)
-data class OAuthData(var id: String = "", var token: OAuthToken = OAuthToken())
+data class OAuthData(var id: String = "", var token: OAuthToken = OAuthToken(), var isTokenNeedRefresh: Boolean = true)
 data class User(
     var accounts: MutableMap<AccountType, OAuthData> = hashMapOf(),
     var info: UserInfo = UserInfo(),

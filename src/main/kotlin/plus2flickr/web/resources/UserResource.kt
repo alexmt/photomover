@@ -36,7 +36,8 @@ class UserResource [Inject] (
     }
     val accountsState = hashMapOf<String, Boolean>()
     for(accountType in AccountType.values()) {
-      accountsState.put(accountType.name(), accounts.containsKey(accountType))
+      val oAuthData = accounts.get(accountType)
+      accountsState.put(accountType.name(), oAuthData != null && oAuthData.isTokenNeedRefresh == false)
     }
 
     return UserInfoViewModel(name, accountsState)

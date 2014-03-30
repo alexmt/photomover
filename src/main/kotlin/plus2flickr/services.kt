@@ -15,6 +15,7 @@ import plus2flickr.thirdparty.OAuthToken
 import com.google.inject.Inject
 import plus2flickr.thirdparty.ImageSize
 import plus2flickr.thirdparty.Photo
+import plus2flickr.thirdparty.InvalidTokenException
 
 class UserService[Inject](
     val users: UserRepository,
@@ -59,7 +60,7 @@ class UserService[Inject](
         throw AuthorizationException(AuthorizationError.ACCOUNT_LINKED_TO_OTHER_USER)
       }
     } else {
-      user.accounts.put(accountType, OAuthData(accountInfo.id, token))
+      user.accounts.put(accountType, OAuthData(accountInfo.id, token, isTokenNeedRefresh = false))
       enrichUserInfo(user.info, accountInfo)
       users.update(user)
       return user
@@ -99,21 +100,35 @@ class UserService[Inject](
     return authorizeCloudService(user, oauth1Authorizer(token, secret, verifier), AccountType.FLICKR)
   }
 
-  fun getPhotoUrl(user: User, accountType: AccountType, photoId: String, size: ImageSize): String {
+  private fun callServiceAction<T>(user: User, accountType: AccountType, action: (CloudService, OAuthData) -> T) : T {
     val authData = user.getAuthData(accountType)
+    if (authData.isTokenNeedRefresh) {
+      throw InvalidTokenException()
+    }
     val service = servicesContainer.get(accountType)
-    return service.getPhotoUrl(photoId, size, authData.token)
+    try {
+      return action(service, authData)
+    } catch (ex: InvalidTokenException) {
+      authData.isTokenNeedRefresh = true
+      throw ex
+    }
+  }
+
+  fun getPhotoUrl(user: User, accountType: AccountType, photoId: String, size: ImageSize): String {
+    return callServiceAction(user, accountType, {
+      (service, authData) -> service.getPhotoUrl(photoId, size, authData.token)
+    })
   }
 
   fun getServiceAlbums(user: User, accountType: AccountType): List<Album> {
-    val authData = user.getAuthData(accountType)
-    val service = servicesContainer.get(accountType)
-    return service.getAlbums(authData.id, authData.token)
+    return callServiceAction(user, accountType, {
+      (service, authData) -> service.getAlbums(authData.id, authData.token)
+    })
   }
 
   fun getAlbumPhotos(user: User, accountType: AccountType, albumId: String) : List<Photo> {
-    val authData = user.getAuthData(accountType)
-    val service = servicesContainer.get(accountType)
-    return service.getPhotos(authData.id, authData.token, albumId, ImageSize.THUMB)
+    return callServiceAction(user, accountType, {
+      (service, authData) -> service.getPhotos(authData.id, authData.token, albumId, ImageSize.THUMB)
+    })
   }
 }
