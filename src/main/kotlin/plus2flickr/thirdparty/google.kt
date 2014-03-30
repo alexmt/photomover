@@ -22,6 +22,8 @@ import plus2flickr.thirdparty.ImageSize
 import plus2flickr.thirdparty.Photo
 import com.google.gdata.data.photos.PhotoFeed
 import com.google.gdata.data.photos.AlbumFeed
+import com.google.gdata.util.ServiceForbiddenException
+import plus2flickr.thirdparty.InvalidTokenException
 
 data class GoogleAppSettings(
     var clientId: String = "",
@@ -42,10 +44,14 @@ class GoogleService[Inject](
     return response
   }
 
-  private fun OAuthToken.picasaService(): PicasawebService {
+  private fun OAuthToken.callPicasa<T>(action: (PicasawebService)->T): T {
     val service = PicasawebService(settings.applicationName)
     service.setAuthSubToken(this.accessToken, null)
-    return service
+    try {
+      return action(service)
+    } catch (ex: ServiceForbiddenException) {
+      throw InvalidTokenException(ex)
+    }
   }
 
   private fun TokenResponse.buildCredential(): GoogleCredential = GoogleCredential.Builder()
@@ -81,36 +87,40 @@ class GoogleService[Inject](
   }
 
   override fun getAccountInfo(token: OAuthToken): AccountInfo {
-    val info = token.toGoogleToken().buildCredential().buildOAuth().userinfo()!!.get()!!.execute()!!
-    return AccountInfo(
-        info.getId()!!,
-        firstName = info.getGivenName(),
-        lastName = info.getFamilyName(),
-        email = info.getEmail())
+    return token.callPicasa {
+      val info = token.toGoogleToken().buildCredential().buildOAuth().userinfo()!!.get()!!.execute()!!
+      AccountInfo(
+          info.getId()!!,
+          firstName = info.getGivenName(),
+          lastName = info.getFamilyName(),
+          email = info.getEmail())
+    }
   }
 
   override fun getAlbums(userId: String, token: OAuthToken): List<Album> {
-    val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId?kind=album")
-    var userFeed = token.picasaService().getFeed(feedUrl, javaClass<UserFeed>())!!
-    return userFeed.getAlbumEntries()!!.map {
-      Album(
-          id = it.getGphotoId()!!,
-          name = it.getTitle()!!.getPlainText()!!,
-          thumbnailUrl = it.getMediaGroup()!!.getThumbnails()!!.first!!.getUrl()!! )
+    return token.callPicasa {
+      val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId?kind=album")
+      it.getFeed(feedUrl, javaClass<UserFeed>())!!.getAlbumEntries()!!.map {
+        Album(
+            id = it.getGphotoId()!!,
+            name = it.getTitle()!!.getPlainText()!!,
+            thumbnailUrl = it.getMediaGroup()!!.getThumbnails()!!.first!!.getUrl()!! )
+      }
     }
   }
 
   override fun getPhotos(userId: String, token: OAuthToken, albumId: String, size: ImageSize): List<Photo> {
-    val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId/albumid/$albumId")
-    var userFeed = token.picasaService().getFeed(feedUrl, javaClass<AlbumFeed>())!!
-    return userFeed.getPhotoEntries()!!.map {
-      Photo(
-          url = it.getMediaThumbnails()!!.maxBy { it.getHeight() }!!.getUrl()!!
-      )
+    return token.callPicasa {
+      val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId/albumid/$albumId")
+      it.getFeed(feedUrl, javaClass<AlbumFeed>())!!.getPhotoEntries()!!.map {
+        Photo(
+            url = it.getMediaThumbnails()!!.maxBy { it.getHeight() }!!.getUrl()!!
+        )
+      }
     }
   }
 
-  override fun authorize(code: String, requestSecret: String, verifier: String): OAuthToken {
+  override fun authorize(token: String, requestSecret: String, verifier: String): OAuthToken {
     throw UnsupportedOperationException()
   }
 

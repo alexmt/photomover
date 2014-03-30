@@ -40,6 +40,21 @@ class UserService[Inject](
 
   private fun oauth2Authorizer(code: String) = {(service: CloudService) -> service.authorize(code) }
 
+  private fun callServiceAction<T>(user: User, accountType: AccountType, action: (CloudService, OAuthData) -> T) : T {
+    val authData = user.getAuthData(accountType)
+    if (authData.isTokenNeedRefresh) {
+      throw InvalidTokenException()
+    }
+    val service = servicesContainer.get(accountType)
+    try {
+      return action(service, authData)
+    } catch (ex: InvalidTokenException) {
+      authData.isTokenNeedRefresh = true
+      users.update(user)
+      throw ex
+    }
+  }
+
   private fun authorizeCloudService(
       user: User,
       authorizer: (service: CloudService)->OAuthToken,
@@ -100,27 +115,13 @@ class UserService[Inject](
     return authorizeCloudService(user, oauth1Authorizer(token, secret, verifier), AccountType.FLICKR)
   }
 
-  private fun callServiceAction<T>(user: User, accountType: AccountType, action: (CloudService, OAuthData) -> T) : T {
-    val authData = user.getAuthData(accountType)
-    if (authData.isTokenNeedRefresh) {
-      throw InvalidTokenException()
-    }
-    val service = servicesContainer.get(accountType)
-    try {
-      return action(service, authData)
-    } catch (ex: InvalidTokenException) {
-      authData.isTokenNeedRefresh = true
-      throw ex
-    }
-  }
-
   fun getPhotoUrl(user: User, accountType: AccountType, photoId: String, size: ImageSize): String {
     return callServiceAction(user, accountType, {
       (service, authData) -> service.getPhotoUrl(photoId, size, authData.token)
     })
   }
 
-  fun getServiceAlbums(user: User, accountType: AccountType): List<Album> {
+  fun getAlbums(user: User, accountType: AccountType): List<Album> {
     return callServiceAction(user, accountType, {
       (service, authData) -> service.getAlbums(authData.id, authData.token)
     })

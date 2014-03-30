@@ -48,7 +48,7 @@ class UserResource [Inject] (
   }
 
   POST Path("/albums") fun albums(FormParam("service") service: String): List<Album> {
-    return userService.getServiceAlbums(state.getCurrentUser(), AccountType.valueOf(service))
+    return userService.getAlbums(state.getCurrentUser(), AccountType.valueOf(service))
   }
 
   POST Path("/photos") fun photos(

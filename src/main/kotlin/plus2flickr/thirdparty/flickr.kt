@@ -20,6 +20,8 @@ import plus2flickr.thirdparty.ImageSize
 import plus2flickr.thirdparty.UrlResolver
 import com.flickr4java.flickr.photos.Size
 import plus2flickr.thirdparty.Photo
+import com.flickr4java.flickr.FlickrException
+import plus2flickr.thirdparty.InvalidTokenException
 
 data class FlickrAppSettings(var apiKey: String = "", var apiSecret: String = "")
 
@@ -28,17 +30,6 @@ class FlickrService(val appSettings: FlickrAppSettings, val urlResolver: UrlReso
   val imageSizeToFlickrSize = mapOf(
       ImageSize.THUMB to Size.THUMB,
       ImageSize.LARGE to Size.LARGE)
-
-  private fun OAuthToken.createFlickr(): Flickr {
-    val flickr = Flickr(appSettings.apiKey, appSettings.apiSecret, REST())
-    val auth = Auth()
-    auth.setPermission(Permission.DELETE)
-    auth.setToken(this.accessToken)
-    auth.setTokenSecret(this.oauth1TokenSecret)
-    RequestContext.getRequestContext()!!.setAuth(auth)
-    flickr.setAuth(auth)
-    return flickr
-  }
 
   private fun getService(callback: String = "") : OAuthService {
     val builder = ServiceBuilder()
@@ -51,43 +42,21 @@ class FlickrService(val appSettings: FlickrAppSettings, val urlResolver: UrlReso
     return builder.build()!!
   }
 
-  override fun authorize(token: String, requestSecret: String, verifier: String): OAuthToken {
-    val requestToken = Token(token, requestSecret)
-    val accessToken = getService().getAccessToken(requestToken, Verifier(verifier))!!
-    return OAuthToken(accessToken = accessToken.getToken()!!, oauth1TokenSecret = accessToken.getSecret())
-  }
-
-  override fun getAccountInfo(token: OAuthToken): AccountInfo {
-    val flickr = token.createFlickr()
-    val user = flickr.getTestInterface()!!.login()!!
-    val accountInfo = AccountInfo(user.getId()!!)
-    val userInfo = flickr.getPeopleInterface()!!.getInfo(user.getId())!!
-    val nameParts = userInfo.getRealName()!!.split(" ")
-    if (nameParts.size > 0) {
-      accountInfo.firstName = nameParts[0]
-    }
-    if (nameParts.size > 1) {
-      accountInfo.lastName = nameParts[1]
-    }
-    return accountInfo
-  }
-
-  override fun getAlbums(userId: String, token: OAuthToken): List<Album> {
-    val flickr = token.createFlickr()
-    return flickr.getPhotosetsInterface()!!.getList(userId)!!.getPhotosets()!!.map {
-      Album(
-          id = it.getId()!!,
-          name = it.getTitle()!!,
-          thumbnailUrl = urlResolver.getPhotoRedirectUrl(it.getPrimaryPhoto()!!.getId()!!, ImageSize.THUMB))
-    }
-  }
-
-  override fun getPhotos(userId: String, token: OAuthToken, albumId: String, size: ImageSize): List<Photo> {
-    return token.createFlickr().getPhotosetsInterface()!!.getPhotos(albumId, 0, 0)!!.map {
-      Photo(
-          id = it.getId()!!,
-          name = it.getTitle()!!,
-          url = urlResolver.getPhotoRedirectUrl(it.getId()!!, size))
+  private fun OAuthToken.callFlickr<T>(action: (Flickr)->T): T {
+    try {
+      val flickr = Flickr(appSettings.apiKey, appSettings.apiSecret, REST())
+      val auth = Auth()
+      auth.setPermission(Permission.DELETE)
+      auth.setToken(this.accessToken)
+      auth.setTokenSecret(this.oauth1TokenSecret)
+      RequestContext.getRequestContext()!!.setAuth(auth)
+      flickr.setAuth(auth)
+      return action(flickr)
+    } catch (ex: FlickrException) {
+      if (ex.getErrorCode() == "98") {
+        throw InvalidTokenException(ex)
+      }
+      throw ex
     }
   }
 
@@ -98,15 +67,61 @@ class FlickrService(val appSettings: FlickrAppSettings, val urlResolver: UrlReso
     return AuthorizationRequest(authorizationUrl, requestToken.getSecret()!!)
   }
 
-  override fun getPhotoUrl(id: String, size: ImageSize, token: OAuthToken): String {
-    val photosService = token.createFlickr().getPhotosInterface()!!
-    val requiredSize = imageSizeToFlickrSize[size]
-    val sizes = photosService.getSizes(id)!!
-    val imgSize = sizes.filter { it.getLabel() == requiredSize }.firstOrNull() ?: sizes.first()
-    return imgSize.getSource()!!
-  }
-
   override fun authorize(code: String): OAuthToken {
     throw UnsupportedOperationException()
+  }
+
+  override fun authorize(token: String, requestSecret: String, verifier: String): OAuthToken {
+    val requestToken = Token(token, requestSecret)
+    val accessToken = getService().getAccessToken(requestToken, Verifier(verifier))!!
+    return OAuthToken(accessToken = accessToken.getToken()!!, oauth1TokenSecret = accessToken.getSecret())
+  }
+
+  override fun getAccountInfo(token: OAuthToken): AccountInfo {
+    return token.callFlickr {
+      val user = it.getTestInterface()!!.login()!!
+      val accountInfo = AccountInfo(user.getId()!!)
+      val userInfo = it.getPeopleInterface()!!.getInfo(user.getId())!!
+      val nameParts = userInfo.getRealName()!!.split(" ")
+      if (nameParts.size > 0) {
+        accountInfo.firstName = nameParts[0]
+      }
+      if (nameParts.size > 1) {
+        accountInfo.lastName = nameParts[1]
+      }
+      accountInfo
+    }
+  }
+
+  override fun getAlbums(userId: String, token: OAuthToken): List<Album> {
+    return token.callFlickr {
+      it.getPhotosetsInterface()!!.getList(userId)!!.getPhotosets()!!.map {
+        Album(
+            id = it.getId()!!,
+            name = it.getTitle()!!,
+            thumbnailUrl = urlResolver.getPhotoRedirectUrl(it.getPrimaryPhoto()!!.getId()!!, ImageSize.THUMB))
+      }
+    }
+  }
+
+  override fun getPhotos(userId: String, token: OAuthToken, albumId: String, size: ImageSize): List<Photo> {
+    return token.callFlickr {
+      it.getPhotosetsInterface()!!.getPhotos(albumId, 0, 0)!!.map {
+        Photo(
+            id = it.getId()!!,
+            name = it.getTitle()!!,
+            url = urlResolver.getPhotoRedirectUrl(it.getId()!!, size))
+      }
+    }
+  }
+
+  override fun getPhotoUrl(id: String, size: ImageSize, token: OAuthToken): String {
+    return token.callFlickr {
+      val photosService = it.getPhotosInterface()!!
+      val requiredSize = imageSizeToFlickrSize[size]
+      val sizes = photosService.getSizes(id)!!
+      val imgSize = sizes.filter { it.getLabel() == requiredSize }.firstOrNull() ?: sizes.first()
+      imgSize.getSource()!!
+    }
   }
 }
