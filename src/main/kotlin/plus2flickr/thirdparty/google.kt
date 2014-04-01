@@ -24,6 +24,10 @@ import com.google.gdata.data.photos.PhotoFeed
 import com.google.gdata.data.photos.AlbumFeed
 import com.google.gdata.util.ServiceForbiddenException
 import plus2flickr.thirdparty.InvalidTokenException
+import com.google.api.client.auth.oauth2.RefreshTokenRequest
+import com.google.api.client.googleapis.auth.oauth2.GoogleOAuthConstants
+import com.google.api.client.http.GenericUrl
+import com.google.api.client.auth.oauth2.ClientParametersAuthentication
 
 data class GoogleAppSettings(
     var clientId: String = "",
@@ -118,6 +122,13 @@ class GoogleService[Inject](
         )
       }
     }
+  }
+
+  override fun refreshAccessToken(refreshToken: String): String {
+    val response = RefreshTokenRequest(transport, jsonFactory, GenericUrl(GoogleOAuthConstants.TOKEN_SERVER_URL), refreshToken)
+        .setClientAuthentication(ClientParametersAuthentication(settings.clientId, settings.clientSecret))!!
+        .execute()!!
+    return response.getAccessToken()!!
   }
 
   override fun authorize(token: String, requestSecret: String, verifier: String): OAuthToken {

@@ -16,6 +16,7 @@ import com.google.inject.Inject
 import plus2flickr.thirdparty.ImageSize
 import plus2flickr.thirdparty.Photo
 import plus2flickr.thirdparty.InvalidTokenException
+import com.google.common.base.Strings
 
 class UserService[Inject](
     val users: UserRepository,
@@ -42,16 +43,30 @@ class UserService[Inject](
 
   private fun callServiceAction<T>(user: User, accountType: AccountType, action: (CloudService, OAuthData) -> T) : T {
     val authData = user.getAuthData(accountType)
-    if (authData.isTokenNeedRefresh) {
-      throw InvalidTokenException()
-    }
     val service = servicesContainer.get(accountType)
+    fun callAction(): T {
+      if (authData.isTokenNeedRefresh) {
+        throw InvalidTokenException()
+      }
+      try {
+        return action(service, authData)
+      } catch (ex: InvalidTokenException) {
+        authData.isTokenNeedRefresh = true
+        users.update(user)
+        throw ex
+      }
+    }
     try {
-      return action(service, authData)
+      return callAction()
     } catch (ex: InvalidTokenException) {
-      authData.isTokenNeedRefresh = true
-      users.update(user)
-      throw ex
+      if (accountType.isOAuth2 && !Strings.isNullOrEmpty(authData.token.refreshToken)) {
+        authData.token.accessToken = service.refreshAccessToken(authData.token.refreshToken!!)
+        authData.isTokenNeedRefresh = false
+        users.update(user)
+        return callAction()
+      } else {
+        throw ex
+      }
     }
   }
 

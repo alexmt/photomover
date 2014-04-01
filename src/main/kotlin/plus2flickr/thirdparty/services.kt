@@ -37,6 +37,7 @@ trait OAuth1Service {
 
 trait OAuth2Service {
   fun authorize(code: String): OAuthToken
+  fun refreshAccessToken(refreshToken: String): String
 }
 
 trait CloudService : OAuth1Service, OAuth2Service {

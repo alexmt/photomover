@@ -67,10 +67,6 @@ class FlickrService(val appSettings: FlickrAppSettings, val urlResolver: UrlReso
     return AuthorizationRequest(authorizationUrl, requestToken.getSecret()!!)
   }
 
-  override fun authorize(code: String): OAuthToken {
-    throw UnsupportedOperationException()
-  }
-
   override fun authorize(token: String, requestSecret: String, verifier: String): OAuthToken {
     val requestToken = Token(token, requestSecret)
     val accessToken = getService().getAccessToken(requestToken, Verifier(verifier))!!
@@ -123,5 +119,13 @@ class FlickrService(val appSettings: FlickrAppSettings, val urlResolver: UrlReso
       val imgSize = sizes.filter { it.getLabel() == requiredSize }.firstOrNull() ?: sizes.first()
       imgSize.getSource()!!
     }
+  }
+
+  override fun authorize(code: String): OAuthToken {
+    throw UnsupportedOperationException()
+  }
+
+  override fun refreshAccessToken(refreshToken: String): String {
+    throw UnsupportedOperationException()
   }
 }
