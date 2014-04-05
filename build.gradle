@@ -24,13 +24,31 @@ node {
   download = true
 }
 
+// tests
+sourceSets {
+  integrationTest {
+    compileClasspath = sourceSets.main.output + configurations.testRuntime
+    runtimeClasspath = output + sourceSets.main.output + configurations.testRuntime
+  }
+}
+
+task integrationTest(type: Test) {
+  testClassesDir = sourceSets.integrationTest.output.classesDir
+  classpath = sourceSets.integrationTest.runtimeClasspath
+}
+
+[test, integrationTest].each {
+  it.useTestNG()
+}
+
+check.dependsOn(["grunt_test", "integrationTest"])
+
+// grunt
 task setupGrunt(dependsOn: ["installGrunt", "npmInstall"])
 grunt_test.dependsOn("setupGrunt")
 grunt_build.dependsOn("setupGrunt")
 
-test.useTestNG()
-test.dependsOn(["grunt_test"])
-
+// heroku deployment
 task stage(dependsOn: ["grunt_build", "installApp"])
 
 repositories {
