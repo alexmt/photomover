@@ -15,9 +15,10 @@ RequestScoped class RequestState[Inject] (
 
   private var user: User? = null
 
-  fun getCurrentUser() = user!!
+  val currentUser : User
+      get() = user!!
 
-  fun changeCurrentUser(newUser: User) {
-    user = newUser
+  fun changeCurrentUser(user: User) {
+    this.user = user
   }
 }

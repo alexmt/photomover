@@ -9,8 +9,12 @@ angular.module('webApp', [
   ]).config(function ($routeProvider, $httpProvider) {
     $routeProvider
       .when('/', {
+        templateUrl: 'views/login.html',
+        controller: 'LoginCtrl'
+      })
+      .when('/photos', {
         templateUrl: 'views/main.html',
-        controller: 'MainCtrl'
+        controller: 'PhotoCtrl'
       })
       .otherwise({
         redirectTo: '/'

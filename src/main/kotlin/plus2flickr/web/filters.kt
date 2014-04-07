@@ -29,7 +29,7 @@ class AuthenticationResponseFilter[Inject](val stateProvider: Provider<RequestSt
 
   override fun filter(request: ContainerRequest?, response: ContainerResponse?): ContainerResponse? {
     val cookie = NewCookie(authCookieName,
-        stateProvider.get()!!.getCurrentUser().getId(), "/", null, null, NewCookie.DEFAULT_MAX_AGE, false)
+        stateProvider.get()!!.currentUser.getId(), "/", null, null, NewCookie.DEFAULT_MAX_AGE, false)
     response?.getHttpHeaders()!!.put(HttpHeaders.SET_COOKIE, listOf(cookie))
     return response
   }

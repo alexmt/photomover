@@ -11,13 +11,14 @@ import plus2flickr.domain.User
 import plus2flickr.repositories.UserRepository
 import plus2flickr.thirdparty.AccountInfo
 import kotlin.test.assertEquals
-import plus2flickr.domain.AccountType
+import plus2flickr.domain.ServiceType
 import plus2flickr.thirdparty.AuthorizationException
 import plus2flickr.thirdparty.AuthorizationError
 import plus2flickr.thirdparty.OAuthToken
 import plus2flickr.domain.UserInfo
 import plus2flickr.domain.OAuthData
 import plus2flickr.CloudServiceContainer
+import kotlin.test.assertTrue
 
 class UserServiceTest {
 
@@ -41,8 +42,8 @@ class UserServiceTest {
     googleService = mock(javaClass<CloudService>())
     flickrService = mock(javaClass<CloudService>())
     val serviceContainer = CloudServiceContainer()
-    serviceContainer.register(AccountType.GOOGLE, googleService!!)
-    serviceContainer.register(AccountType.FLICKR, flickrService!!)
+    serviceContainer.register(ServiceType.GOOGLE, googleService!!)
+    serviceContainer.register(ServiceType.FLICKR, flickrService!!)
     userService = UserService(users!!, serviceContainer)
     whenMock(googleService!!.authorize(authCode))!!.thenReturn(token)
     whenMock(googleService!!.getAccountInfo(token))!!.thenReturn(accountInfo)
@@ -50,46 +51,33 @@ class UserServiceTest {
 
   Test fun authorizeGoogleAccount_accountNotLinkedToOther_userIsPersisted() {
     val user = User()
-    whenMock(users!!.findByAccountId(accountInfo.id, AccountType.GOOGLE))!!.thenReturn(null)
+    whenMock(users!!.findByAccountId(accountInfo.id, ServiceType.GOOGLE))!!.thenReturn(null)
 
-    val resultUser = userService!!.authorizeGoogleAccount(user, authCode)
+    userService!!.authorizeGoogleAccount(user, authCode)
 
     verify(users)!!.update(user)
-    assertEquals(user, resultUser)
-    assertEquals(UserInfo(accountInfo.firstName, accountInfo.lastName, accountInfo.email), resultUser.info)
+    assertTrue(user.accounts.containsKey(ServiceType.GOOGLE))
   }
 
-  Test fun authorizeGoogleAccount_accountIsLinkedToExistingUser_currentAnonymousIsDeleted() {
+  Test fun authorizeGoogleAccount_accountIsLinkedToExistingUser_accountsAreMerged() {
     val user = User()
     val existingUser = User()
     existingUser.setId("existing_user_id")
-    whenMock(users!!.findByAccountId(accountInfo.id, AccountType.GOOGLE))!!.thenReturn(existingUser)
+    existingUser.info = UserInfo("test", "user")
+    existingUser.accounts.put(ServiceType.FLICKR, OAuthData())
+    whenMock(users!!.findByAccountId(accountInfo.id, ServiceType.GOOGLE))!!.thenReturn(existingUser)
 
-    val resultUser = userService!!.authorizeGoogleAccount(user, authCode)
+    userService!!.authorizeGoogleAccount(user, authCode)
 
-    verify(users)!!.remove(user)
-    assertEquals(existingUser, resultUser)
-  }
-
-  Test fun authorizeGoogleAccount_accountIsLinkedToExisting_exceptionThrown() {
-    val user = User()
-    user.accounts.put(AccountType.FLICKR, OAuthData())
-    val existingUser = User()
-    existingUser.setId("existing_user_id")
-    whenMock(users!!.findByAccountId(accountInfo.id, AccountType.GOOGLE))!!.thenReturn(existingUser)
-
-    var error: AuthorizationError? = null
-    try {
-      userService!!.authorizeGoogleAccount(user, authCode)
-    } catch(e: AuthorizationException) {
-      error = e.error
-    }
-    assertEquals(error, AuthorizationError.ACCOUNT_LINKED_TO_OTHER_USER)
+    verify(users)!!.remove(existingUser)
+    assertTrue(user.accounts.containsKey(ServiceType.FLICKR))
+    assertTrue(user.accounts.containsKey(ServiceType.GOOGLE))
+    assertEquals(existingUser.info, user.info)
   }
 
   Test fun authorizeGoogleAccount_userHasAccountOfSameType_exceptionThrown() {
     val user = User()
-    user.accounts.put(AccountType.GOOGLE, OAuthData())
+    user.accounts.put(ServiceType.GOOGLE, OAuthData())
     var error: AuthorizationError? = null
     try {
        userService!!.authorizeGoogleAccount(user, authCode)
@@ -104,12 +92,11 @@ class UserServiceTest {
     user.flickrAuthorizationRequestSecret = "test"
     whenMock(flickrService!!.authorize(authCode, "test", verifier))!!.thenReturn(token)
     whenMock(flickrService!!.getAccountInfo(token))!!.thenReturn(accountInfo)
-    whenMock(users!!.findByAccountId(accountInfo.id, AccountType.FLICKR))!!.thenReturn(null)
+    whenMock(users!!.findByAccountId(accountInfo.id, ServiceType.FLICKR))!!.thenReturn(null)
 
-    val resultUser = userService!!.authorizeFlickrAccount(user, authCode, verifier)
+    userService!!.authorizeFlickrAccount(user, authCode, verifier)
 
     verify(users)!!.update(user)
-    assertEquals(user, resultUser)
-    assertEquals(UserInfo(accountInfo.firstName, accountInfo.lastName, accountInfo.email), resultUser.info)
+    assertTrue(user.accounts.containsKey(ServiceType.FLICKR))
   }
 }

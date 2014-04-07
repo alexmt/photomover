@@ -2,7 +2,7 @@ package plus2flickr.services
 
 import plus2flickr.domain.User
 import plus2flickr.thirdparty.CloudService
-import plus2flickr.domain.AccountType
+import plus2flickr.domain.ServiceType
 import plus2flickr.repositories.UserRepository
 import plus2flickr.thirdparty.AccountInfo
 import plus2flickr.thirdparty.AuthorizationException
@@ -22,12 +22,17 @@ class UserService[Inject](
     val users: UserRepository,
     val servicesContainer: CloudServiceContainer) {
 
-  private fun User.getAuthData(accountType: AccountType): OAuthData {
+  private fun User.getAuthData(accountType: ServiceType): OAuthData {
     val authData = this.accounts[accountType]
     if (authData == null) {
       throw IllegalArgumentException("User does not have account of type '$accountType'")
     }
     return authData
+  }
+
+  private fun User.merge(user: User) {
+    accounts.putAll(user.accounts)
+    info = user.info
   }
 
   private fun enrichUserInfo(info: UserInfo, accountInfo: AccountInfo) {
@@ -41,7 +46,7 @@ class UserService[Inject](
 
   private fun oauth2Authorizer(code: String) = {(service: CloudService) -> service.authorize(code) }
 
-  private fun callServiceAction<T>(user: User, accountType: AccountType, action: (CloudService, OAuthData) -> T) : T {
+  private fun callServiceAction<T>(user: User, accountType: ServiceType, action: (CloudService, OAuthData) -> T) : T {
     val authData = user.getAuthData(accountType)
     val service = servicesContainer.get(accountType)
     fun callAction(): T {
@@ -73,7 +78,7 @@ class UserService[Inject](
   private fun authorizeCloudService(
       user: User,
       authorizer: (service: CloudService)->OAuthToken,
-      accountType: AccountType): User {
+      accountType: ServiceType) {
     val service = servicesContainer.get(accountType)
     val token = authorizer(service)
     val accountInfo = service.getAccountInfo(token)
@@ -83,18 +88,12 @@ class UserService[Inject](
     }
     val existingUser = users.findByAccountId(accountInfo.id, accountType)
     if (existingUser != null && existingUser.getId() != user.getId()) {
-      if (user.accounts.empty) {
-        users.remove(user)
-        return existingUser
-      } else {
-        throw AuthorizationException(AuthorizationError.ACCOUNT_LINKED_TO_OTHER_USER)
-      }
-    } else {
-      user.accounts.put(accountType, OAuthData(accountInfo.id, token, isTokenNeedRefresh = false))
-      enrichUserInfo(user.info, accountInfo)
-      users.update(user)
-      return user
+      user.merge(existingUser)
+      users.remove(existingUser)
     }
+    user.accounts.put(accountType, OAuthData(accountInfo.id, token, isTokenNeedRefresh = false))
+    enrichUserInfo(user.info, accountInfo)
+    users.update(user)
   }
 
   fun findUserById(id: String): User? {
@@ -112,37 +111,37 @@ class UserService[Inject](
   }
 
   fun authorizeGoogleAccount(user: User, authCode: String) =
-      authorizeCloudService(user, oauth2Authorizer(authCode), AccountType.GOOGLE)
+      authorizeCloudService(user, oauth2Authorizer(authCode), ServiceType.GOOGLE)
 
   fun getFlickrAuthorizationUrl(user: User, callback: String): String {
-    val authorizationRequest = servicesContainer.get(AccountType.FLICKR).requestAuthorization(callback)
+    val authorizationRequest = servicesContainer.get(ServiceType.FLICKR).requestAuthorization(callback)
     user.flickrAuthorizationRequestSecret = authorizationRequest.secret
     users.update(user)
     return authorizationRequest.url
   }
 
-  fun authorizeFlickrAccount(user: User, token: String, verifier: String): User {
+  fun authorizeFlickrAccount(user: User, token: String, verifier: String) {
     val secret = user.flickrAuthorizationRequestSecret
     if (secret == null) {
       throw IllegalArgumentException("User does not request secret for Flickr authorization")
     }
     user.flickrAuthorizationRequestSecret = null
-    return authorizeCloudService(user, oauth1Authorizer(token, secret, verifier), AccountType.FLICKR)
+    authorizeCloudService(user, oauth1Authorizer(token, secret, verifier), ServiceType.FLICKR)
   }
 
-  fun getPhotoUrl(user: User, accountType: AccountType, photoId: String, size: ImageSize): String {
+  fun getPhotoUrl(user: User, accountType: ServiceType, photoId: String, size: ImageSize): String {
     return callServiceAction(user, accountType, {
       (service, authData) -> service.getPhotoUrl(photoId, size, authData.token)
     })
   }
 
-  fun getAlbums(user: User, accountType: AccountType): List<Album> {
+  fun getAlbums(user: User, accountType: ServiceType): List<Album> {
     return callServiceAction(user, accountType, {
       (service, authData) -> service.getAlbums(authData.id, authData.token)
     })
   }
 
-  fun getAlbumPhotos(user: User, accountType: AccountType, albumId: String) : List<Photo> {
+  fun getAlbumPhotos(user: User, accountType: ServiceType, albumId: String) : List<Photo> {
     return callServiceAction(user, accountType, {
       (service, authData) -> service.getPhotos(authData.id, authData.token, albumId, ImageSize.THUMB)
     })

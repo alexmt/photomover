@@ -21,14 +21,11 @@
     <link href='http://fonts.googleapis.com/css?family=Pompiere' rel='stylesheet' type='text/css'>
     <!-- endbuild -->
   </head>
-  <body ng-app="webApp">
-    <!--[if lt IE 7]>
-      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-    <![endif]-->
+  <body ng-app="webApp" ng-controller="AppCtrl">
 
     <!-- Add your site or application content here -->
     <div class="fluid-container">
-      <div class="container" ng-view=""></div>
+      <div class="container" ng-view></div>
     </div>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
@@ -59,7 +56,9 @@
 
     <!-- build:js scripts/scripts.js -->
     <script src="scripts/app.js"></script>
-    <script src="scripts/controllers/MainCtrl.js"></script>
+    <script src="scripts/controllers/AppCtrl.js"></script>
+    <script src="scripts/controllers/LoginCtrl.js"></script>
+    <script src="scripts/controllers/PhotoCtrl.js"></script>
     <script src="scripts/services/App.js"></script>
     <script src="scripts/services/User.js"></script>
     <script src="scripts/services/Google.js"></script>

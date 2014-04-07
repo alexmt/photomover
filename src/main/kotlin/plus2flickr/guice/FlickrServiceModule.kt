@@ -5,7 +5,7 @@ import com.google.inject.AbstractModule
 import com.google.inject.Provides
 import plus2flickr.thirdparty.flickr.FlickrService
 import plus2flickr.ServiceUrlResolver
-import plus2flickr.domain.AccountType
+import plus2flickr.domain.ServiceType
 
 class FlickrServiceModule(val settings: FlickrAppSettings) : AbstractModule() {
 
@@ -15,6 +15,6 @@ class FlickrServiceModule(val settings: FlickrAppSettings) : AbstractModule() {
 
   Provides
   fun provideFlickrService(): FlickrService {
-    return FlickrService(settings, ServiceUrlResolver(AccountType.FLICKR))
+    return FlickrService(settings, ServiceUrlResolver(ServiceType.FLICKR))
   }
 }

@@ -6,7 +6,7 @@ import org.ektorp.support.CouchDbRepositorySupport
 import plus2flickr.domain.User
 import plus2flickr.repositories.UserRepository
 import org.ektorp.ComplexKey
-import plus2flickr.domain.AccountType
+import plus2flickr.domain.ServiceType
 import org.ektorp.support.View
 
 class CouchDbUserRepository[Inject](db: CouchDbConnector)
@@ -14,7 +14,7 @@ class CouchDbUserRepository[Inject](db: CouchDbConnector)
 
   View(name = "byAccountId",
        map = "function(doc) { for(account in doc.accounts) { emit([account, doc.accounts[account].id], doc); } }")
-  override fun findByAccountId(accountId: String, accountType: AccountType): User? {
+  override fun findByAccountId(accountId: String, accountType: ServiceType): User? {
     return queryView("byAccountId", ComplexKey.of(accountType, accountId))!!.firstOrNull()
   }
 }
