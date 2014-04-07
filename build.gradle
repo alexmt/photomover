@@ -24,6 +24,14 @@ node {
   download = true
 }
 
+task startCouchDb << {
+  ant.exec(executable: "couchdb") {
+    arg line: "-b"
+  }
+}
+
+run.dependsOn(["startCouchDb"])
+
 // tests
 sourceSets {
   integrationTest {
@@ -36,6 +44,7 @@ task integrationTest(type: Test) {
   testClassesDir = sourceSets.integrationTest.output.classesDir
   classpath = sourceSets.integrationTest.runtimeClasspath
 }
+integrationTest.dependsOn(["startCouchDb"])
 
 [test, integrationTest].each {
   it.useTestNG()
