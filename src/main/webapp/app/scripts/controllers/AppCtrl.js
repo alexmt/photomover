@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('controllers')
-  .controller('AppCtrl', ['$scope', '$rootScope', '$location', 'App', 'Google', 'User',
-    function ($scope, $rootScope, $location, App, Google, User) {
+  .controller('AppCtrl', ['$scope', '$rootScope', '$location', '$window', 'App', 'Google', 'User',
+    function ($scope, $rootScope, $location, $window, App, Google, User) {
 
       function applyUserInfo(userInfo) {
         $scope.userInfo = userInfo;
@@ -13,7 +13,7 @@ angular.module('controllers')
       }
 
       $scope.signInToFlickr = function () {
-        window.location.href = 'services/user/flickr/authorize';
+        $window.location.href = 'services/user/flickr/authorize';
       };
 
       $scope.signInToGoogle = function () {
