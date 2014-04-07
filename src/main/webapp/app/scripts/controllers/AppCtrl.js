@@ -1,12 +1,15 @@
 'use strict';
 
 angular.module('controllers')
-  .controller('AppCtrl', ['$scope', '$rootScope', 'App', 'Google', 'User',
-    function ($scope, $rootScope, App, Google, User) {
+  .controller('AppCtrl', ['$scope', '$rootScope', '$location', 'App', 'Google', 'User',
+    function ($scope, $rootScope, $location, App, Google, User) {
 
-      function applyUserInfo(info) {
-        $scope.userInfo = info;
-        $rootScope.$broadcast("userInfoUpdated", info);
+      function applyUserInfo(userInfo) {
+        $scope.userInfo = userInfo;
+        $rootScope.$broadcast("userInfoUpdated", userInfo);
+        if (userInfo && userInfo.isAnonymous) {
+          $location.path("/login");
+        }
       }
 
       $scope.signInToFlickr = function () {
