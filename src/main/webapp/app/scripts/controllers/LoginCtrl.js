@@ -1,15 +1,8 @@
 'use strict';
 
 angular.module('controllers')
-  .controller('LoginCtrl', ['$scope', '$rootScope' ,'$location', function ($scope, $rootScope, $location) {
-    function checkIsLoginCompleted(userInfo) {
-      if (userInfo && !userInfo.isAnonymous) {
-        $location.path("/photos");
-      }
+  .controller('LoginCtrl', ['$location', 'userInfo', function ($location, userInfo) {
+    if(!userInfo.isAnonymous) {
+      $location.path("/home");
     }
-
-    $scope.$watch('userInfo', checkIsLoginCompleted);
-    $rootScope.$on('userInfoUpdated', function(event, info) {
-      checkIsLoginCompleted(info);
-    });
   }]);

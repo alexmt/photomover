@@ -35,9 +35,9 @@ class UserResource [Inject] (
       info.firstName ?: info.lastName ?: "User"
     }
     val accountsState = hashMapOf<String, Boolean>()
-    for(accountType in ServiceType.values()) {
+    for(accountType in ServiceType.values().sortBy { it.name() }) {
       val oAuthData = accounts.get(accountType)
-      accountsState.put(accountType.name(), oAuthData != null && oAuthData.isTokenNeedRefresh == false)
+      accountsState.put(accountType.name().toLowerCase(), oAuthData != null && oAuthData.isTokenNeedRefresh == false)
     }
 
     return UserInfoViewModel(name, accountsState)
@@ -48,12 +48,12 @@ class UserResource [Inject] (
   }
 
   POST Path("/albums") fun albums(FormParam("service") service: String): List<Album> {
-    return userService.getAlbums(state.currentUser, ServiceType.valueOf(service))
+    return userService.getAlbums(state.currentUser, ServiceType.valueOf(service.toUpperCase()))
   }
 
   POST Path("/photos") fun photos(
       FormParam("albumId") albumId: String, FormParam("service") service: String): List<Photo> {
-    return userService.getAlbumPhotos(state.currentUser, ServiceType.valueOf(service), albumId)
+    return userService.getAlbumPhotos(state.currentUser, ServiceType.valueOf(service.toUpperCase()), albumId)
   }
 
   GET Path("/photo/redirect/{account}/{id}/{size}") fun goToPhoto(Context response: HttpServletResponse,
