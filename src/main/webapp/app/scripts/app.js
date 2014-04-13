@@ -37,9 +37,9 @@ angular.module('webApp', [
       templateUrl: 'views/login.html',
       controller: 'LoginCtrl',
       resolve: {
-        userInfo: function(User) {
+        userInfo: ['User', function(User) {
           return User.info().$promise;
-        }
+        }]
       }
     });
   $routeProvider.otherwise({
