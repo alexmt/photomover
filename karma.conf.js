@@ -15,8 +15,7 @@ module.exports = function(config) {
       '../app/bower_components/angular-mocks/angular-mocks.js',
       '../app/bower_components/angular-resource/angular-resource.js',
       '../app/bower_components/angular-route/angular-route.js',
-      '../app/bower_components/angular-route-segment/src/route-segment.js',
-      '../app/bower_components/angular-route-segment/src/view-segment.js',
+      '../app/bower_components/angular-route-segment/build/angular-route-segment.js',
       '../app/scripts/*.js',
       '../app/scripts/**/*.js',
       '../test/spec/**/*.js'

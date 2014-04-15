@@ -47,4 +47,39 @@ describe('Controller: AppCtrl', function () {
   it('should load user info on start', function() {
     expect(scope.userInfo).toBe(userInfo);
   });
+
+  it('should use Google and User services to sign in into google', function() {
+    var googleAppSettingsCallback = null;
+    var promise = q.defer().promise;
+    var thenPromiseCallback = null;
+    var testSettings = {};
+    var testCode = 'test_code';
+    var authorizeGoogleAccountCallback = null;
+
+    spyOn(app, 'googleAppSettings').andCallFake(function(callback) {
+      googleAppSettingsCallback = callback;
+    });
+    spyOn(google, 'authorize').andCallFake(function(settings) {
+      expect(settings).toBe(testSettings);
+    }).andReturn(promise);
+    spyOn(promise, 'then').andCallFake(function(callback) {
+      thenPromiseCallback = callback;
+    });
+    spyOn(user, 'authorizeGoogleAccount').andCallFake(function(data, callback) {
+      expect(data.code).toBe(testCode);
+      authorizeGoogleAccountCallback = callback;
+    });
+
+    scope.signInToGoogle();
+    expect(googleAppSettingsCallback).not.toBeNull();
+    googleAppSettingsCallback(testSettings);
+    expect(thenPromiseCallback).not.toBeNull();
+    thenPromiseCallback(testCode);
+    expect(authorizeGoogleAccountCallback).not.toBeNull();
+    var authorizedUserInfo = {
+      isAnonymous: false
+    };
+    authorizeGoogleAccountCallback({ data: authorizedUserInfo });
+    expect(scope.userInfo).toBe(authorizedUserInfo);
+  });
 });
