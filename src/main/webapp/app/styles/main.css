@@ -1,13 +1,31 @@
-body {
-  padding-top: 20px;
-  padding-bottom: 20px;
+html, body, .app-content {
+  height: 100%;
 }
 
-.fluid-container {
-  margin: 0 auto;
+/* Components */
+.service-buttons {
+  text-align: center;
+}
+
+.service-buttons a {
   width: 100%;
 }
 
-.content {
+/* Login page */
+.login.container {
+  display: table;
+  height: 100%;
+}
+
+.login .row {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+/* Home page */
+.home {
   padding: 20px 0;
 }
+
+
+

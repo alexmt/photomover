@@ -1,5 +1,7 @@
-<div ng-repeat="album in albums" class="pull-left">
-  <a ng-href="#home/{{service}}/albums/{{album.id}}/photos">
-    <img ng-src="{{album.thumbnailUrl}}" title="{{album.name}}">
-  </a>
+<div class="row">
+  <div class="col-md-2" ng-repeat="album in albums">
+    <a ng-href="#home/{{service}}/albums/{{album.id}}/photos" class="thumbnail">
+      <img ng-src="{{album.thumbnailUrl}}" title="{{album.name}}">
+    </a>
+  </div>
 </div>

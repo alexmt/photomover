@@ -1,5 +1,17 @@
-<p>Existing user login with your account</p>
-<div>
-  <a ng-click="signInToGoogle()" class="zocial googleplus">Google</a>
-  <a ng-click="signInToFlickr()" class="zocial flickr">Flickr</a>
+<div class="container login">
+
+  <div class="row">
+    <div class="col-md-4 col-md-offset-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title">Please login using any of following service:</h4>
+        </div>
+        <div class="service-buttons panel-body">
+          <a ng-click="signInToGoogle()" class="service-button zocial googleplus">Google</a>
+          or
+          <a ng-click="signInToFlickr()" class="zocial flickr">Flickr</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

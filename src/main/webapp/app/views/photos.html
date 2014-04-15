@@ -1,3 +1,7 @@
-<div ng-repeat="photo in photos" class="pull-left">
-  <img ng-src="{{photo.url}}" title="{{photo.name}}">
+<div class="row">
+  <div class="col-md-2" ng-repeat="photo in photos">
+    <a class="thumbnail">
+      <img ng-src="{{photo.url}}" title="{{photo.name}}">
+    </a>
+  </div>
 </div>
