@@ -82,4 +82,9 @@ describe('Controller: AppCtrl', function () {
     authorizeGoogleAccountCallback({ data: authorizedUserInfo });
     expect(scope.userInfo).toBe(authorizedUserInfo);
   });
+
+  it('should redirect to "/services/user/logout" on logout', function() {
+    scope.logout();
+    expect(wnd.location.href).toBe('/services/user/logout');
+  });
 });

@@ -14,12 +14,14 @@ import com.google.inject.Inject
 class AuthenticationResponseFilter[Inject](val stateProvider: Provider<RequestState>, val userService: UserService)
 : ContainerResponseFilter, ContainerRequestFilter {
 
-  private final val authCookieName = "auth"
+  class object {
+    public final val authCookieName : String = "auth"
+  }
 
   override fun filter(request: ContainerRequest?): ContainerRequest? {
     val state = stateProvider.get()!!
     val authCookie = request?.getCookies()?.get(authCookieName)?.getValue()
-    state.changeCurrentUser(if (authCookie == null ) {
+    state.changeCurrentUser(if (authCookie == null || authCookie.isEmpty()) {
       userService.createUser()
     } else {
       userService.findUserById(authCookie) ?: userService.createUser()

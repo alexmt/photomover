@@ -10,7 +10,12 @@
           <li class="active"><a href="#">Home</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-          <li><a>Hello {{userInfo.name}}!</a></li>
+          <li>
+            <a>
+              Hello {{userInfo.name}}!
+              <span class="btn-link" ng-if="!userInfo.isAnonymous" ng-click="logout();">Logout</span>
+            </a>
+          </li>
         </ul>
       </div>
     </div>

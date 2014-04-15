@@ -16,12 +16,13 @@ import javax.ws.rs.core.Context
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import com.google.common.base.CharMatcher
-import com.google.inject.Inject
 import org.scribe.model.OAuthConstants
 import javax.ws.rs.PathParam
 import plus2flickr.thirdparty.ImageSize
 import plus2flickr.thirdparty.Photo
 import javax.ws.rs.FormParam
+import plus2flickr.web.filters.AuthenticationResponseFilter
+import com.google.inject.Inject
 
 Path("/user") Produces("application/json")
 class UserResource [Inject] (
@@ -85,6 +86,19 @@ class UserResource [Inject] (
     val authCode = request.getParameter(OAuthConstants.TOKEN).toString()
     val verifier = request.getParameter(OAuthConstants.VERIFIER).toString()
     userService.authorizeFlickrAccount(state.currentUser, authCode, verifier)
+    response.sendRedirect("/")
+  }
+
+  GET Path("/logout") fun logout(
+      Context request: HttpServletRequest, Context response: HttpServletResponse) {
+    request.getCookies()?.filter {
+      it.getName().equals(AuthenticationResponseFilter.authCookieName)
+    }?.forEach {
+      it.setPath("/")
+      it.setValue("")
+      it.setMaxAge(0)
+      response.addCookie(it)
+    }
     response.sendRedirect("/")
   }
 }

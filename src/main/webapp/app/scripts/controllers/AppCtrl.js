@@ -19,6 +19,10 @@ angular.module('controllers')
         });
       };
 
+      $scope.logout = function () {
+        $window.location.href = "/services/user/logout";
+      };
+
       User.info(function(userInfo) {
         $scope.userInfo = userInfo;
         if (userInfo && userInfo.isAnonymous) {
