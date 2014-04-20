@@ -13,7 +13,7 @@ angular.module('controllers')
           Google.authorize(settings).then(function (code) {
             User.authorizeGoogleAccount({ code: code }, function (response) {
               $scope.userInfo = response.data;
-              $location.path('/home/google/albums');
+              $location.path('/home/photos/google/albums');
             });
           });
         });
@@ -21,6 +21,10 @@ angular.module('controllers')
 
       $scope.logout = function () {
         $window.location.href = "/services/user/logout";
+      };
+
+      $scope.isActiveLocation = function(location) {
+        return $location.path().startsWith(location);
       };
 
       User.info(function(userInfo) {

@@ -23,13 +23,14 @@ import plus2flickr.thirdparty.Photo
 import javax.ws.rs.FormParam
 import plus2flickr.web.filters.AuthenticationResponseFilter
 import com.google.inject.Inject
+import plus2flickr.web.models.DetailedUserInfoViewModel
 
 Path("/user") Produces("application/json")
 class UserResource [Inject] (
     val userService: UserService,
     val state: RequestState) {
 
-  private fun User.getViewModel(): UserInfoViewModel {
+  private fun User.getUserInfo(): UserInfoViewModel {
     val name = if (info.firstName != null && info.lastName != null) {
       "${info.firstName} ${info.lastName}"
     } else {
@@ -45,7 +46,18 @@ class UserResource [Inject] (
   }
 
   GET Path("/info") fun info(): UserInfoViewModel {
-    return state.currentUser.getViewModel()
+    return state.currentUser.getUserInfo()
+  }
+
+  GET Path("/detailedInfo") fun detailedInfo(): DetailedUserInfoViewModel {
+    val info = state.currentUser.info
+    return DetailedUserInfoViewModel(
+        firstName = info.firstName ?: "",
+        lastName = info.lastName ?: "",
+        email = info.email ?: "",
+        linkedServices = state.currentUser.accounts.entrySet()
+            .filter { !it.value.isTokenNeedRefresh }
+            .map { it.key.name().toLowerCase() })
   }
 
   POST Path("/albums") fun albums(FormParam("service") service: String): List<Album> {
@@ -68,7 +80,7 @@ class UserResource [Inject] (
       : OperationResponse<UserInfoViewModel> {
     try {
       userService.authorizeGoogleAccount(state.currentUser, code)
-      return OperationResponse(data = state.currentUser.getViewModel(), success = true)
+      return OperationResponse(data = state.currentUser.getUserInfo(), success = true)
     } catch (e: AuthorizationException){
       return OperationResponse(errorMessage = e.message, success = false)
     }

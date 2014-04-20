@@ -7,6 +7,10 @@ angular.module('services')
         method: 'GET',
         params: { action: 'info' }
       },
+      detailedInfo: {
+        method: 'GET',
+        params: { action: 'detailedInfo' }
+      },
       authorizeGoogleAccount: {
         method: 'POST',
         url: '/services/user/google/verify'

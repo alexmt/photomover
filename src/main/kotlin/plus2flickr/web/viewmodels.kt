@@ -5,6 +5,12 @@ data class UserInfoViewModel(var name: String = "", var accountsState: Map<Strin
     get() = !accountsState.values().any { it }
 }
 
+data class DetailedUserInfoViewModel(
+    var firstName: String = "",
+    var lastName: String = "",
+    var email: String = "",
+    var linkedServices: List<String> = listOf())
+
 data class GoogleAppSettingsViewModel(var clientId: String, var scopes: List<String>)
 
 data class OperationResponse<T>(

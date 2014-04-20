@@ -7,7 +7,8 @@
       </div>
       <div class="navbar-collapse">
         <ul class="nav navbar-nav">
-          <li class="active"><a href="#">Home</a></li>
+          <li ng-class="{ active : isActiveLocation('/home') }"><a ng-href="#/home">Home</a></li>
+          <li ng-class="{ active : isActiveLocation('/account') }"><a ng-href="#/account">My account</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
           <li>
@@ -20,35 +21,5 @@
       </div>
     </div>
   </div>
-
-  <div class="row">
-
-    <div class="col-md-2">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <p class="panel-title">Add more services:</p>
-        </div>
-        <div class="panel-body">
-          <div class="service-buttons">
-            <a ng-click="signInToGoogle()" ng-if="!userInfo.accountsState['google']" class="zocial googleplus">Google</a>
-            <a ng-click="signInToFlickr()" ng-if="!userInfo.accountsState['flickr']" class="zocial flickr">Flickr</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <p class="panel-title">Connected services:</p>
-        </div>
-        <div class="panel-body">
-          <div class="service-buttons">
-            <a ng-href="#home/google/albums" ng-if="userInfo.accountsState['google']" class="zocial googleplus">Google</a>
-            <a ng-href="#home/flickr/albums" ng-if="userInfo.accountsState['flickr']" class="zocial flickr">Flickr</a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-10" app-view-segment="1"></div>
-  </div>
-
+  <div class="row" app-view-segment="1"></div>
 </div>
