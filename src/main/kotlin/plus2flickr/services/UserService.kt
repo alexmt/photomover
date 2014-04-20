@@ -110,6 +110,11 @@ class UserService[Inject](
     return user
   }
 
+  fun updateUserInfo(user: User, userInfo: UserInfo) {
+    user.info = userInfo
+    users.update(user)
+  }
+
   fun authorizeGoogleAccount(user: User, authCode: String) =
       authorizeCloudService(user, oauth2Authorizer(authCode), ServiceType.GOOGLE)
 

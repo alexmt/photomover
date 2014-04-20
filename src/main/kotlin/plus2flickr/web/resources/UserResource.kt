@@ -20,10 +20,13 @@ import org.scribe.model.OAuthConstants
 import javax.ws.rs.PathParam
 import plus2flickr.thirdparty.ImageSize
 import plus2flickr.thirdparty.Photo
-import javax.ws.rs.FormParam
 import plus2flickr.web.filters.AuthenticationResponseFilter
 import com.google.inject.Inject
 import plus2flickr.web.models.DetailedUserInfoViewModel
+import plus2flickr.domain.UserInfo
+import javax.ws.rs.Consumes
+import javax.ws.rs.core.MediaType
+import plus2flickr.web.models.ServiceAlbumInput
 
 Path("/user") Produces("application/json")
 class UserResource [Inject] (
@@ -60,13 +63,23 @@ class UserResource [Inject] (
             .map { it.key.name().toLowerCase() })
   }
 
-  POST Path("/albums") fun albums(FormParam("service") service: String): List<Album> {
+  POST Path("/updateInfo")
+  fun updateInfo(info: DetailedUserInfoViewModel): OperationResponse<Any> {
+    userService.updateUserInfo(state.currentUser, UserInfo(
+        firstName = info.firstName,
+        lastName = info.lastName,
+        email = info.email
+    ))
+    return OperationResponse<Any>(success = true)
+  }
+
+  POST Path("/albums") fun albums(service: String): List<Album> {
     return userService.getAlbums(state.currentUser, ServiceType.valueOf(service.toUpperCase()))
   }
 
-  POST Path("/photos") fun photos(
-      FormParam("albumId") albumId: String, FormParam("service") service: String): List<Photo> {
-    return userService.getAlbumPhotos(state.currentUser, ServiceType.valueOf(service.toUpperCase()), albumId)
+  POST Path("/photos") fun photos(input: ServiceAlbumInput): List<Photo> {
+    return userService.getAlbumPhotos(
+        state.currentUser, ServiceType.valueOf(input.service.toUpperCase()), input.albumId)
   }
 
   GET Path("/photo/redirect/{account}/{id}/{size}") fun goToPhoto(Context response: HttpServletResponse,
@@ -76,7 +89,7 @@ class UserResource [Inject] (
     response.sendRedirect(userService.getPhotoUrl(state.currentUser, accountType, id, imageSize))
   }
 
-  POST Path("/google/verify") fun verifyGoogle(FormParam("code") code: String)
+  POST Path("/google/verify") fun verifyGoogle(code: String)
       : OperationResponse<UserInfoViewModel> {
     try {
       userService.authorizeGoogleAccount(state.currentUser, code)

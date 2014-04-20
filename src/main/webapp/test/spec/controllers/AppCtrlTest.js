@@ -66,7 +66,7 @@ describe('Controller: AppCtrl', function () {
       thenPromiseCallback = callback;
     });
     spyOn(user, 'authorizeGoogleAccount').andCallFake(function(data, callback) {
-      expect(data.code).toBe(testCode);
+      expect(data).toBe(testCode);
       authorizeGoogleAccountCallback = callback;
     });
 

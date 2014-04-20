@@ -7,6 +7,10 @@ angular.module('services')
         method: 'GET',
         params: { action: 'info' }
       },
+      updateInfo: {
+        method: 'POST',
+        params: { action: 'updateInfo' }
+      },
       detailedInfo: {
         method: 'GET',
         params: { action: 'detailedInfo' }

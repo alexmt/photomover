@@ -13,6 +13,8 @@ data class DetailedUserInfoViewModel(
 
 data class GoogleAppSettingsViewModel(var clientId: String, var scopes: List<String>)
 
+data class ServiceAlbumInput(var albumId: String = "", var service: String = "")
+
 data class OperationResponse<T>(
     var success: Boolean = true,
     var errorMessage: String = "",

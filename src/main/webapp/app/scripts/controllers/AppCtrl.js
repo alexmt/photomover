@@ -11,7 +11,7 @@ angular.module('controllers')
       $scope.signInToGoogle = function () {
         App.googleAppSettings(function (settings) {
           Google.authorize(settings).then(function (code) {
-            User.authorizeGoogleAccount({ code: code }, function (response) {
+            User.authorizeGoogleAccount(code, function (response) {
               $scope.userInfo = response.data;
               $location.path('/home/photos/google/albums');
             });
