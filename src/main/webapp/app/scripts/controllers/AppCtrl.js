@@ -4,6 +4,13 @@ angular.module('controllers')
   .controller('AppCtrl', ['$scope', '$rootScope', '$location', '$window', 'App', 'Google', 'User',
     function ($scope, $rootScope, $location, $window, App, Google, User) {
 
+      function applyInfo(userInfo) {
+        $scope.userInfo = userInfo;
+        if (userInfo && userInfo.isAnonymous) {
+          $location.path("/login");
+        }
+      }
+
       $scope.signInToFlickr = function () {
         $window.location.href = 'services/user/flickr/authorize';
       };
@@ -27,10 +34,8 @@ angular.module('controllers')
         return $location.path().indexOf(location) == 0;
       };
 
-      User.info(function(userInfo) {
-        $scope.userInfo = userInfo;
-        if (userInfo && userInfo.isAnonymous) {
-          $location.path("/login");
-        }
+      $rootScope.$on('userUpdated', function(event, info) {
+        applyInfo(info);
       });
+      User.info(applyInfo);
     }]);

@@ -14,6 +14,9 @@ angular.module('controllers')
         }
       }
 
+      $rootScope.$on('userUpdated', function(event, info) {
+        userInfo = info;
+      });
       $rootScope.$on('$locationChangeStart', function () {
         redirectToFirstService();
       });

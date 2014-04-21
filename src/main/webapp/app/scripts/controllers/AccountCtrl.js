@@ -1,8 +1,14 @@
 'use strict';
 
 angular.module('controllers')
-  .controller('AccountCtrl', ['$scope', '$window', 'User', 'accountInfo',
-    function ($scope, $window, User, accountInfo) {
+  .controller('AccountCtrl', ['$rootScope', '$scope', '$window', 'User', 'accountInfo',
+    function ($rootScope, $scope, $window, User, accountInfo) {
+
+      function refreshUserInfo() {
+        User.info(function(info) {
+          $rootScope.$broadcast('userUpdated', info);
+        });
+      }
 
       $scope.accountInfo = accountInfo;
 
@@ -11,7 +17,7 @@ angular.module('controllers')
           firstName: $scope.accountInfo.firstName,
           lastName: $scope.accountInfo.lastName,
           email: $scope.accountInfo.email
-        });
+        }, refreshUserInfo);
       };
 
       var removeServiceModal = $('#removeServiceModal');
@@ -26,6 +32,7 @@ angular.module('controllers')
       $scope.confirmRemovingService = function(service) {
         User.removeService(service, function() {
           removeServiceModal.modal('hide');
+          refreshUserInfo();
           User.detailedInfo(function(accountInfo) {
             $scope.accountInfo = accountInfo;
           });
