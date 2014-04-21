@@ -24,7 +24,7 @@ angular.module('controllers')
       };
 
       $scope.isActiveLocation = function(location) {
-        return $location.path().startsWith(location);
+        return $location.path().indexOf(location) == 0;
       };
 
       User.info(function(userInfo) {
