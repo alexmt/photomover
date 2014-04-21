@@ -15,8 +15,12 @@ data class GoogleAppSettingsViewModel(var clientId: String, var scopes: List<Str
 
 data class ServiceAlbumInput(var albumId: String = "", var service: String = "")
 
-data class OperationResponse<T>(
+data class ErrorInfo(var error: String = "", var message: String = "")
+
+open data class OperationResponse<T>(
     var success: Boolean = true,
-    var errorMessage: String = "",
+    var errors: List<ErrorInfo> = listOf(),
     var data: T? = null)
 
+data class NoDataOperationResponse(success: Boolean = true, errors: List<ErrorInfo> = listOf())
+  : OperationResponse<Any>(success, errors, null)

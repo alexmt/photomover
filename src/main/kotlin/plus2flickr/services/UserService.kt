@@ -17,10 +17,14 @@ import plus2flickr.thirdparty.ImageSize
 import plus2flickr.thirdparty.Photo
 import plus2flickr.thirdparty.InvalidTokenException
 import com.google.common.base.Strings
+import plus2flickr.domain.ServiceOperationErrorException
+import plus2flickr.domain.OperationError
 
-class UserService[Inject](
-    val users: UserRepository,
-    val servicesContainer: CloudServiceContainer) {
+enum class UserServiceError {
+  CANNOT_REMOVE_LAST_SERVICE
+}
+
+class UserService[Inject](val users: UserRepository, val servicesContainer: CloudServiceContainer) {
 
   private fun User.getAuthData(accountType: ServiceType): OAuthData {
     val authData = this.accounts[accountType]
@@ -110,9 +114,24 @@ class UserService[Inject](
     return user
   }
 
+  fun deleteUser(user: User) {
+    users.remove(user)
+  }
+
   fun updateUserInfo(user: User, userInfo: UserInfo) {
     user.info = userInfo
     users.update(user)
+  }
+
+  fun removeService(user: User, serviceType: ServiceType) {
+    if (user.accounts.containsKey(serviceType) ) {
+      if (user.accounts.size == 1) {
+        throw ServiceOperationErrorException.create(OperationError(UserServiceError.CANNOT_REMOVE_LAST_SERVICE))
+      } else {
+        user.accounts.remove(serviceType)
+        users.update(user)
+      }
+    }
   }
 
   fun authorizeGoogleAccount(user: User, authCode: String) =

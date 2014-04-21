@@ -11,6 +11,14 @@ angular.module('services')
         method: 'POST',
         params: { action: 'updateInfo' }
       },
+      removeService: {
+        method: 'POST',
+        params: { action: 'removeService' }
+      },
+      deleteAccount: {
+        method: 'POST',
+        params: { action: 'deleteAccount' }
+      },
       detailedInfo: {
         method: 'GET',
         params: { action: 'detailedInfo' }

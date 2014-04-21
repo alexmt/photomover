@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('controllers')
-  .controller('AccountCtrl', ['$scope', 'User', 'accountInfo',
-    function ($scope, User, accountInfo) {
+  .controller('AccountCtrl', ['$scope', '$window', 'User', 'accountInfo',
+    function ($scope, $window, User, accountInfo) {
 
       $scope.accountInfo = accountInfo;
 
@@ -14,4 +14,31 @@ angular.module('controllers')
         });
       };
 
+      var removeServiceModal = $('#removeServiceModal');
+      var deleteAccountModal = $("#deleteAccountModal");
+      $scope.startRemoveService = function(service) {
+        $scope.removingService =  {
+          name: service
+        };
+        removeServiceModal.modal('show');
+      };
+
+      $scope.confirmRemovingService = function(service) {
+        User.removeService(service, function() {
+          removeServiceModal.modal('hide');
+          User.detailedInfo(function(accountInfo) {
+            $scope.accountInfo = accountInfo;
+          });
+        });
+      };
+
+      $scope.startDeletingAccount = function() {
+        deleteAccountModal.modal('show');
+      };
+
+      $scope.confirmDeletingAccount = function() {
+        User.deleteAccount(function() {
+          $window.location.reload();
+        });
+      }
     }]);

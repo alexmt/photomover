@@ -21,17 +21,14 @@ import javax.ws.rs.PathParam
 import plus2flickr.thirdparty.ImageSize
 import plus2flickr.thirdparty.Photo
 import plus2flickr.web.filters.AuthenticationResponseFilter
-import com.google.inject.Inject
 import plus2flickr.web.models.DetailedUserInfoViewModel
 import plus2flickr.domain.UserInfo
-import javax.ws.rs.Consumes
-import javax.ws.rs.core.MediaType
 import plus2flickr.web.models.ServiceAlbumInput
+import plus2flickr.web.models.ErrorInfo
+import com.google.inject.Inject
 
 Path("/user") Produces("application/json")
-class UserResource [Inject] (
-    val userService: UserService,
-    val state: RequestState) {
+class UserResource [Inject] (val userService: UserService, val state: RequestState) {
 
   private fun User.getUserInfo(): UserInfoViewModel {
     val name = if (info.firstName != null && info.lastName != null) {
@@ -64,13 +61,12 @@ class UserResource [Inject] (
   }
 
   POST Path("/updateInfo")
-  fun updateInfo(info: DetailedUserInfoViewModel): OperationResponse<Any> {
+  fun updateInfo(info: DetailedUserInfoViewModel) {
     userService.updateUserInfo(state.currentUser, UserInfo(
         firstName = info.firstName,
         lastName = info.lastName,
         email = info.email
     ))
-    return OperationResponse<Any>(success = true)
   }
 
   POST Path("/albums") fun albums(service: String): List<Album> {
@@ -89,13 +85,22 @@ class UserResource [Inject] (
     response.sendRedirect(userService.getPhotoUrl(state.currentUser, accountType, id, imageSize))
   }
 
+  POST Path("removeService") fun removeService(account: String) =
+      userService.removeService(state.currentUser, ServiceType.valueOf(account.toUpperCase()))
+
+  POST Path("deleteAccount") fun deleteAccount(
+      Context request: HttpServletRequest, Context response: HttpServletResponse) {
+    userService.deleteUser(state.currentUser)
+    logout(request, response)
+  }
+
   POST Path("/google/verify") fun verifyGoogle(code: String)
       : OperationResponse<UserInfoViewModel> {
     try {
       userService.authorizeGoogleAccount(state.currentUser, code)
       return OperationResponse(data = state.currentUser.getUserInfo(), success = true)
     } catch (e: AuthorizationException){
-      return OperationResponse(errorMessage = e.message, success = false)
+      return OperationResponse(success = false, errors = listOf(ErrorInfo(message = e.message)))
     }
   }
 

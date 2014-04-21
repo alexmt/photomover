@@ -37,13 +37,51 @@
     <div class="col-md-5">
       <p ng-repeat="service in accountInfo.linkedServices" class="clearfix">
         <strong>{{service | capitalizeFirst }}</strong>
-        <button class="btn btn-danger pull-right">Remove</button>
+        <button class="btn btn-danger pull-right" ng-click="startRemoveService(service)">Remove</button>
       </p>
     </div>
   </div>
   <div class="row">
     <div class="col-md-5">
-      <button class="btn btn-danger">Delete my account</button>
+      <button ng-click="startDeletingAccount()" class="btn btn-danger">Delete my account</button>
     </div>
    </div>
+</div>
+
+<div id="removeServiceModal" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Remove service</h4>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to remove service {{removingService.name | capitalizeFirst}}?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button ng-click="confirmRemovingService(removingService.name)"
+                type="button" class="btn btn-primary btn-danger">Remove</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="deleteAccountModal" class="modal fade">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">Delete account</h4>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete your account?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        <button ng-click="confirmDeletingAccount()"
+                type="button" class="btn btn-primary btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
 </div>
