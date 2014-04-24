@@ -35,12 +35,12 @@ describe('Controller: AppCtrl', function () {
     });
   }));
 
-  it('should define signInToFlickr function', function () {
-    expect(scope.signInToFlickr).toBeDefined();
+  it('should define signInToOAuthService function', function () {
+    expect(scope.signInToOAuthService).toBeDefined();
   });
 
   it('should redirect to flickr login page to sign in into flickr', function() {
-    scope.signInToFlickr();
+    scope.signInToOAuthService('flickr');
     expect(wnd.location.href).toBe('services/user/flickr/authorizeOAuth');
   });
 

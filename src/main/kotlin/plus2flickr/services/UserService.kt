@@ -2,7 +2,6 @@ package plus2flickr.services
 
 import plus2flickr.domain.User
 import plus2flickr.thirdparty.CloudService
-import plus2flickr.domain.ServiceType
 import plus2flickr.repositories.UserRepository
 import plus2flickr.thirdparty.AccountInfo
 import plus2flickr.thirdparty.AuthorizationException
@@ -27,10 +26,10 @@ enum class UserServiceError {
 
 class UserService[Inject](val users: UserRepository, val servicesContainer: CloudServiceContainer) {
 
-  private fun User.getAuthData(accountType: ServiceType): OAuthData {
-    val authData = this.accounts[accountType]
+  private fun User.getAuthData(serviceCode: String): OAuthData {
+    val authData = this.accounts[serviceCode]
     if (authData == null) {
-      throw IllegalArgumentException("User does not have account of type '$accountType'")
+      throw IllegalArgumentException("User does not have account of type '$serviceCode'")
     }
     return authData
   }
@@ -51,9 +50,9 @@ class UserService[Inject](val users: UserRepository, val servicesContainer: Clou
 
   private fun oauth2Authorizer(code: String) = {(service: CloudService) -> service.authorize(code) }
 
-  private fun callServiceAction<T>(user: User, accountType: ServiceType, action: (CloudService, OAuthData) -> T) : T {
-    val authData = user.getAuthData(accountType)
-    val service = servicesContainer.get(accountType)
+  private fun callServiceAction<T>(user: User, serviceCode: String, action: (CloudService, OAuthData) -> T) : T {
+    val authData = user.getAuthData(serviceCode)
+    val service = servicesContainer.get(serviceCode)
     fun callAction(): T {
       if (authData.isTokenNeedRefresh) {
         throw InvalidTokenException()
@@ -69,7 +68,7 @@ class UserService[Inject](val users: UserRepository, val servicesContainer: Clou
     try {
       return callAction()
     } catch (ex: InvalidTokenException) {
-      if (accountType.isOAuth2 && !Strings.isNullOrEmpty(authData.token.refreshToken)) {
+      if (!Strings.isNullOrEmpty(authData.token.refreshToken)) {
         authData.token.accessToken = service.refreshAccessToken(authData.token.refreshToken!!)
         authData.isTokenNeedRefresh = false
         users.update(user)
@@ -81,22 +80,20 @@ class UserService[Inject](val users: UserRepository, val servicesContainer: Clou
   }
 
   private fun authorizeCloudService(
-      user: User,
-      authorizer: (service: CloudService)->OAuthToken,
-      accountType: ServiceType) {
-    val service = servicesContainer.get(accountType)
+      user: User, authorizer: (service: CloudService)->OAuthToken, serviceCode: String) {
+    val service = servicesContainer.get(serviceCode)
     val token = authorizer(service)
     val accountInfo = service.getAccountInfo(token)
-    val existingAccountInfo = user.accounts.get(accountType)
+    val existingAccountInfo = user.accounts.get(serviceCode)
     if (existingAccountInfo != null && existingAccountInfo.id != accountInfo.id) {
       throw AuthorizationException(AuthorizationError.DUPLICATED_ACCOUNT_TYPE)
     }
-    val existingUser = users.findByAccountId(accountInfo.id, accountType)
+    val existingUser = users.findByAccountId(accountInfo.id, serviceCode)
     if (existingUser != null && existingUser.getId() != user.getId()) {
       user.merge(existingUser)
       users.remove(existingUser)
     }
-    user.accounts.put(accountType, OAuthData(accountInfo.id, token, isTokenNeedRefresh = false))
+    user.accounts.put(serviceCode, OAuthData(accountInfo.id, token, isTokenNeedRefresh = false))
     enrichUserInfo(user.info, accountInfo)
     users.update(user)
   }
@@ -124,53 +121,50 @@ class UserService[Inject](val users: UserRepository, val servicesContainer: Clou
     users.update(user)
   }
 
-  fun removeService(user: User, serviceType: ServiceType) {
-    if (user.accounts.containsKey(serviceType) ) {
+  fun removeService(user: User, serviceCode: String) {
+    if (user.accounts.containsKey(serviceCode) ) {
       if (user.accounts.size == 1) {
         throw ServiceOperationErrorException.create(OperationError(UserServiceError.CANNOT_REMOVE_LAST_SERVICE))
       } else {
-        user.accounts.remove(serviceType)
+        user.accounts.remove(serviceCode)
         users.update(user)
       }
     }
   }
 
-  fun authorizeOAuth2Service(user: User, authCode: String, serviceType: ServiceType) {
-    Preconditions.checkArgument(serviceType.isOAuth2, "The $serviceType is not OAuth2.0 service")
-    authorizeCloudService(user, oauth2Authorizer(authCode), serviceType)
+  fun authorizeOAuth2Service(user: User, authCode: String, serviceCode: String) {
+    authorizeCloudService(user, oauth2Authorizer(authCode), serviceCode)
   }
 
-  fun getOAuthAuthorizationUrl(user: User, callback: String, serviceType: ServiceType): String {
-    Preconditions.checkArgument(!serviceType.isOAuth2, "The $serviceType is not OAuth1.0 service")
-    val authorizationRequest = servicesContainer.get(serviceType).requestAuthorization(callback)
-    user.oauthRequestSecret.put(serviceType, authorizationRequest.secret)
+  fun getOAuthAuthorizationUrl(user: User, callback: String, serviceCode: String): String {
+    val authorizationRequest = servicesContainer.get(serviceCode).requestAuthorization(callback)
+    user.oauthRequestSecret.put(serviceCode, authorizationRequest.secret)
     users.update(user)
     return authorizationRequest.url
   }
 
-  fun authorizeOAuthService(user: User, token: String, verifier: String, serviceType: ServiceType) {
-    Preconditions.checkArgument(!serviceType.isOAuth2, "The $serviceType is not OAuth1.0 service")
-    val secret = user.oauthRequestSecret.remove(serviceType)
+  fun authorizeOAuthService(user: User, token: String, verifier: String, serviceCode: String) {
+    val secret = user.oauthRequestSecret.remove(serviceCode)
     if (secret == null) {
-      throw IllegalArgumentException("User does not request secret for $serviceType authorization")
+      throw IllegalArgumentException("User does not request secret for $serviceCode authorization")
     }
-    authorizeCloudService(user, oauth1Authorizer(token, secret, verifier), serviceType)
+    authorizeCloudService(user, oauth1Authorizer(token, secret, verifier), serviceCode)
   }
 
-  fun getPhotoUrl(user: User, accountType: ServiceType, photoId: String, size: ImageSize): String {
-    return callServiceAction(user, accountType, {
+  fun getPhotoUrl(user: User, serviceCode: String, photoId: String, size: ImageSize): String {
+    return callServiceAction(user, serviceCode, {
       (service, authData) -> service.getPhotoUrl(photoId, size, authData.token)
     })
   }
 
-  fun getAlbums(user: User, accountType: ServiceType): List<Album> {
-    return callServiceAction(user, accountType, {
+  fun getAlbums(user: User, serviceCode: String): List<Album> {
+    return callServiceAction(user, serviceCode, {
       (service, authData) -> service.getAlbums(authData.id, authData.token)
     })
   }
 
-  fun getAlbumPhotos(user: User, accountType: ServiceType, albumId: String) : List<Photo> {
-    return callServiceAction(user, accountType, {
+  fun getAlbumPhotos(user: User, serviceCode: String, albumId: String) : List<Photo> {
+    return callServiceAction(user, serviceCode, {
       (service, authData) -> service.getPhotos(authData.id, authData.token, albumId, ImageSize.THUMB)
     })
   }

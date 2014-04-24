@@ -1,7 +1,5 @@
 package plus2flickr.thirdparty
 
-import plus2flickr.domain.ServiceType
-
 class AuthorizationException(val error: AuthorizationError, val message: String = "") : Exception()
 class InvalidTokenException(cause: Throwable? = null): Exception(cause)
 

@@ -6,7 +6,7 @@
     <div class="panel-body">
       <div class="service-buttons">
         <a ng-click="signInToGoogle()" ng-if="!userInfo.accountsState['google']" class="zocial googleplus">Google</a>
-        <a ng-click="signInToFlickr()" ng-if="!userInfo.accountsState['flickr']" class="zocial flickr">Flickr</a>
+        <a ng-click="signInToOAuthService('flickr')" ng-if="!userInfo.accountsState['flickr']" class="zocial flickr">Flickr</a>
       </div>
     </div>
   </div>

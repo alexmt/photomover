@@ -5,7 +5,6 @@ import plus2flickr.thirdparty.AuthorizationException
 import plus2flickr.web.models.UserInfoViewModel
 import javax.ws.rs.Path
 import javax.ws.rs.POST
-import plus2flickr.domain.ServiceType
 import plus2flickr.thirdparty.Album
 import javax.ws.rs.GET
 import plus2flickr.domain.User
@@ -26,11 +25,10 @@ import plus2flickr.domain.UserInfo
 import plus2flickr.web.models.ServiceAlbumInput
 import plus2flickr.web.models.ErrorInfo
 import com.google.inject.Inject
+import plus2flickr.CloudServiceContainer
 
 Path("/user") Produces("application/json")
-class UserResource [Inject] (val userService: UserService, val state: RequestState) {
-
-  private fun parseServiceType(serviceType: String) = ServiceType.valueOf(serviceType.toUpperCase())
+class UserResource [Inject] (val userService: UserService, val state: RequestState, val services: CloudServiceContainer) {
 
   private fun User.getUserInfo(): UserInfoViewModel {
     val name = if (info.firstName != null && info.lastName != null) {
@@ -39,9 +37,9 @@ class UserResource [Inject] (val userService: UserService, val state: RequestSta
       info.firstName ?: info.lastName ?: "User"
     }
     val accountsState = hashMapOf<String, Boolean>()
-    for(accountType in ServiceType.values().sortBy { it.name() }) {
-      val oAuthData = accounts.get(accountType)
-      accountsState.put(accountType.name().toLowerCase(), oAuthData != null && oAuthData.isTokenNeedRefresh == false)
+    for (serviceCode in services.serviceCodes.sortBy { it }) {
+      val oAuthData = accounts.get(serviceCode)
+      accountsState.put(serviceCode, oAuthData != null && oAuthData.isTokenNeedRefresh == false)
     }
 
     return UserInfoViewModel(name, accountsState)
@@ -59,7 +57,7 @@ class UserResource [Inject] (val userService: UserService, val state: RequestSta
         email = info.email ?: "",
         linkedServices = state.currentUser.accounts.entrySet()
             .filter { !it.value.isTokenNeedRefresh }
-            .map { it.key.name().toLowerCase() })
+            .map { it.key })
   }
 
   POST Path("/updateInfo")
@@ -72,23 +70,22 @@ class UserResource [Inject] (val userService: UserService, val state: RequestSta
   }
 
   POST Path("/albums") fun albums(service: String): List<Album> {
-    return userService.getAlbums(state.currentUser, parseServiceType(service))
+    return userService.getAlbums(state.currentUser, service)
   }
 
   POST Path("/photos") fun photos(input: ServiceAlbumInput): List<Photo> {
     return userService.getAlbumPhotos(
-        state.currentUser, ServiceType.valueOf(input.service.toUpperCase()), input.albumId)
+        state.currentUser, input.service, input.albumId)
   }
 
-  GET Path("/photo/redirect/{account}/{id}/{size}") fun goToPhoto(Context response: HttpServletResponse,
-      PathParam("account") account: String, PathParam("id") id: String, PathParam("size") size: String) {
-    val accountType = ServiceType.valueOf(account.toUpperCase())
+  GET Path("/photo/redirect/{service}/{id}/{size}") fun goToPhoto(Context response: HttpServletResponse,
+      PathParam("service") service: String, PathParam("id") id: String, PathParam("size") size: String) {
     val imageSize = ImageSize.valueOf(size)
-    response.sendRedirect(userService.getPhotoUrl(state.currentUser, accountType, id, imageSize))
+    response.sendRedirect(userService.getPhotoUrl(state.currentUser, service, id, imageSize))
   }
 
-  POST Path("removeService") fun removeService(account: String) =
-      userService.removeService(state.currentUser, ServiceType.valueOf(account.toUpperCase()))
+  POST Path("removeService") fun removeService(service: String) =
+      userService.removeService(state.currentUser, service)
 
   POST Path("deleteAccount") fun deleteAccount(
       Context request: HttpServletRequest, Context response: HttpServletResponse) {
@@ -99,7 +96,7 @@ class UserResource [Inject] (val userService: UserService, val state: RequestSta
   POST Path("/{service}/verifyOAuth2") fun verifyOAuth2(PathParam("service") service: String, code: String)
       : OperationResponse<UserInfoViewModel> {
     try {
-      userService.authorizeOAuth2Service(state.currentUser, code, parseServiceType(service))
+      userService.authorizeOAuth2Service(state.currentUser, code, service)
       return OperationResponse(data = state.currentUser.getUserInfo(), success = true)
     } catch (e: AuthorizationException){
       return OperationResponse(success = false, errors = listOf(ErrorInfo(message = e.message)))
@@ -112,7 +109,7 @@ class UserResource [Inject] (val userService: UserService, val state: RequestSta
       Context response: HttpServletResponse) {
     val path = CharMatcher.anyOf("/")!!.trimFrom(request.getRequestURI()!!.replace("/authorize", "/verify"))
     val url ="${request.getScheme()}://${request.getServerName()}:${request.getServerPort()}/$path"
-    response.sendRedirect(userService.getOAuthAuthorizationUrl(state.currentUser, url, parseServiceType(service)))
+    response.sendRedirect(userService.getOAuthAuthorizationUrl(state.currentUser, url, service))
   }
 
   GET Path("/{service}/verifyOAuth") fun verifyOAuth(
@@ -121,7 +118,7 @@ class UserResource [Inject] (val userService: UserService, val state: RequestSta
       Context response: HttpServletResponse) {
     val authCode = request.getParameter(OAuthConstants.TOKEN).toString()
     val verifier = request.getParameter(OAuthConstants.VERIFIER).toString()
-    userService.authorizeOAuthService(state.currentUser, authCode, verifier, parseServiceType(service))
+    userService.authorizeOAuthService(state.currentUser, authCode, verifier, service)
     response.sendRedirect("/")
   }
 

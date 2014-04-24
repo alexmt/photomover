@@ -7,7 +7,6 @@ import com.google.inject.Provides
 import plus2flickr.thirdparty.google.GoogleService
 import plus2flickr.thirdparty.flickr.FlickrService
 import plus2flickr.CloudServiceContainer
-import plus2flickr.domain.ServiceType
 
 class ServicesModule(
     val googleAppSettings: GoogleAppSettings, val flickrAppSettings: FlickrAppSettings) : AbstractModule() {
@@ -19,8 +18,8 @@ class ServicesModule(
 
   Provides fun provideServiceContainer(google: GoogleService, flickr: FlickrService): CloudServiceContainer {
     val container = CloudServiceContainer()
-    container.register(ServiceType.GOOGLE, google)
-    container.register(ServiceType.FLICKR, flickr)
+    container.register("google", google)
+    container.register("flickr", flickr)
     return container
   }
 }
