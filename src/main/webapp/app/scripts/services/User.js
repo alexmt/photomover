@@ -25,7 +25,7 @@ angular.module('services')
       },
       authorizeGoogleAccount: {
         method: 'POST',
-        url: '/services/user/google/verify'
+        url: '/services/user/google/verifyOAuth2'
       },
       albums: {
         method: 'POST',

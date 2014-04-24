@@ -30,6 +30,8 @@ import com.google.inject.Inject
 Path("/user") Produces("application/json")
 class UserResource [Inject] (val userService: UserService, val state: RequestState) {
 
+  private fun parseServiceType(serviceType: String) = ServiceType.valueOf(serviceType.toUpperCase())
+
   private fun User.getUserInfo(): UserInfoViewModel {
     val name = if (info.firstName != null && info.lastName != null) {
       "${info.firstName} ${info.lastName}"
@@ -70,7 +72,7 @@ class UserResource [Inject] (val userService: UserService, val state: RequestSta
   }
 
   POST Path("/albums") fun albums(service: String): List<Album> {
-    return userService.getAlbums(state.currentUser, ServiceType.valueOf(service.toUpperCase()))
+    return userService.getAlbums(state.currentUser, parseServiceType(service))
   }
 
   POST Path("/photos") fun photos(input: ServiceAlbumInput): List<Photo> {
@@ -80,7 +82,7 @@ class UserResource [Inject] (val userService: UserService, val state: RequestSta
 
   GET Path("/photo/redirect/{account}/{id}/{size}") fun goToPhoto(Context response: HttpServletResponse,
       PathParam("account") account: String, PathParam("id") id: String, PathParam("size") size: String) {
-    val accountType = ServiceType.valueOf(account.capitalize())
+    val accountType = ServiceType.valueOf(account.toUpperCase())
     val imageSize = ImageSize.valueOf(size)
     response.sendRedirect(userService.getPhotoUrl(state.currentUser, accountType, id, imageSize))
   }
@@ -94,28 +96,32 @@ class UserResource [Inject] (val userService: UserService, val state: RequestSta
     logout(request, response)
   }
 
-  POST Path("/google/verify") fun verifyGoogle(code: String)
+  POST Path("/{service}/verifyOAuth2") fun verifyOAuth2(PathParam("service") service: String, code: String)
       : OperationResponse<UserInfoViewModel> {
     try {
-      userService.authorizeGoogleAccount(state.currentUser, code)
+      userService.authorizeOAuth2Service(state.currentUser, code, parseServiceType(service))
       return OperationResponse(data = state.currentUser.getUserInfo(), success = true)
     } catch (e: AuthorizationException){
       return OperationResponse(success = false, errors = listOf(ErrorInfo(message = e.message)))
     }
   }
 
-  GET Path("/flickr/authorize") fun authorizeFlickr(
-      Context request: HttpServletRequest, Context response: HttpServletResponse) {
+  GET Path("/{service}/authorizeOAuth") fun authorizeOAuth(
+      PathParam("service") service: String,
+      Context request: HttpServletRequest,
+      Context response: HttpServletResponse) {
     val path = CharMatcher.anyOf("/")!!.trimFrom(request.getRequestURI()!!.replace("/authorize", "/verify"))
     val url ="${request.getScheme()}://${request.getServerName()}:${request.getServerPort()}/$path"
-    response.sendRedirect(userService.getFlickrAuthorizationUrl(state.currentUser, url))
+    response.sendRedirect(userService.getOAuthAuthorizationUrl(state.currentUser, url, parseServiceType(service)))
   }
 
-  GET Path("/flickr/verify") fun verifyFlickr(
-      Context request: HttpServletRequest, Context response: HttpServletResponse) {
+  GET Path("/{service}/verifyOAuth") fun verifyOAuth(
+      PathParam("service") service: String,
+      Context request: HttpServletRequest,
+      Context response: HttpServletResponse) {
     val authCode = request.getParameter(OAuthConstants.TOKEN).toString()
     val verifier = request.getParameter(OAuthConstants.VERIFIER).toString()
-    userService.authorizeFlickrAccount(state.currentUser, authCode, verifier)
+    userService.authorizeOAuthService(state.currentUser, authCode, verifier, parseServiceType(service))
     response.sendRedirect("/")
   }
 

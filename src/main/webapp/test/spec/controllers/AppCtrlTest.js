@@ -41,7 +41,7 @@ describe('Controller: AppCtrl', function () {
 
   it('should redirect to flickr login page to sign in into flickr', function() {
     scope.signInToFlickr();
-    expect(wnd.location.href).toBe('services/user/flickr/authorize');
+    expect(wnd.location.href).toBe('services/user/flickr/authorizeOAuth');
   });
 
   it('should load user info on start', function() {

@@ -19,6 +19,7 @@ import plus2flickr.thirdparty.InvalidTokenException
 import com.google.common.base.Strings
 import plus2flickr.domain.ServiceOperationErrorException
 import plus2flickr.domain.OperationError
+import com.google.common.base.Preconditions
 
 enum class UserServiceError {
   CANNOT_REMOVE_LAST_SERVICE
@@ -134,23 +135,26 @@ class UserService[Inject](val users: UserRepository, val servicesContainer: Clou
     }
   }
 
-  fun authorizeGoogleAccount(user: User, authCode: String) =
-      authorizeCloudService(user, oauth2Authorizer(authCode), ServiceType.GOOGLE)
+  fun authorizeOAuth2Service(user: User, authCode: String, serviceType: ServiceType) {
+    Preconditions.checkArgument(serviceType.isOAuth2, "The $serviceType is not OAuth2.0 service")
+    authorizeCloudService(user, oauth2Authorizer(authCode), serviceType)
+  }
 
-  fun getFlickrAuthorizationUrl(user: User, callback: String): String {
-    val authorizationRequest = servicesContainer.get(ServiceType.FLICKR).requestAuthorization(callback)
-    user.flickrAuthorizationRequestSecret = authorizationRequest.secret
+  fun getOAuthAuthorizationUrl(user: User, callback: String, serviceType: ServiceType): String {
+    Preconditions.checkArgument(!serviceType.isOAuth2, "The $serviceType is not OAuth1.0 service")
+    val authorizationRequest = servicesContainer.get(serviceType).requestAuthorization(callback)
+    user.oauthRequestSecret.put(serviceType, authorizationRequest.secret)
     users.update(user)
     return authorizationRequest.url
   }
 
-  fun authorizeFlickrAccount(user: User, token: String, verifier: String) {
-    val secret = user.flickrAuthorizationRequestSecret
+  fun authorizeOAuthService(user: User, token: String, verifier: String, serviceType: ServiceType) {
+    Preconditions.checkArgument(!serviceType.isOAuth2, "The $serviceType is not OAuth1.0 service")
+    val secret = user.oauthRequestSecret.remove(serviceType)
     if (secret == null) {
-      throw IllegalArgumentException("User does not request secret for Flickr authorization")
+      throw IllegalArgumentException("User does not request secret for $serviceType authorization")
     }
-    user.flickrAuthorizationRequestSecret = null
-    authorizeCloudService(user, oauth1Authorizer(token, secret, verifier), ServiceType.FLICKR)
+    authorizeCloudService(user, oauth1Authorizer(token, secret, verifier), serviceType)
   }
 
   fun getPhotoUrl(user: User, accountType: ServiceType, photoId: String, size: ImageSize): String {

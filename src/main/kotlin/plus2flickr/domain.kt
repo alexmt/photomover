@@ -11,9 +11,15 @@ enum class ServiceType(val id: Int, val isOAuth2: Boolean) {
 data class UserInfo(var firstName: String? = null, var lastName: String? = null, var email: String? = null)
 data class OAuthData(var id: String = "", var token: OAuthToken = OAuthToken(), var isTokenNeedRefresh: Boolean = true)
 data class User(
-    var accounts: MutableMap<ServiceType, OAuthData> = hashMapOf(),
     var info: UserInfo = UserInfo(),
-    var flickrAuthorizationRequestSecret: String? = null) : CouchDbDocument()
+    /**
+     * Contains OAuth 1.0/2.0 authentication key per service type.
+     */
+    var accounts: MutableMap<ServiceType, OAuthData> = hashMapOf(),
+    /**
+     * Contains OAuth 1.0 authorization request secrets per service type.
+     */
+    var oauthRequestSecret: MutableMap<ServiceType, String> = hashMapOf()) : CouchDbDocument()
 
 data class OperationError<T>(val error: T, val message: String = "")
 

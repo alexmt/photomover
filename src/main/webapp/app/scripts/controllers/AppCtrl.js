@@ -12,7 +12,7 @@ angular.module('controllers')
       }
 
       $scope.signInToFlickr = function () {
-        $window.location.href = 'services/user/flickr/authorize';
+        $window.location.href = 'services/user/flickr/authorizeOAuth';
       };
 
       $scope.signInToGoogle = function () {

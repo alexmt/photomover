@@ -19,6 +19,7 @@ import plus2flickr.domain.UserInfo
 import plus2flickr.domain.OAuthData
 import plus2flickr.CloudServiceContainer
 import kotlin.test.assertTrue
+import kotlin.test.assertFalse
 
 class UserServiceTest {
 
@@ -49,17 +50,17 @@ class UserServiceTest {
     whenMock(googleService!!.getAccountInfo(token))!!.thenReturn(accountInfo)
   }
 
-  Test fun authorizeGoogleAccount_accountNotLinkedToOther_userIsPersisted() {
+  Test fun authorizeOAuth2Service_accountNotLinkedToOther_userIsPersisted() {
     val user = User()
     whenMock(users!!.findByAccountId(accountInfo.id, ServiceType.GOOGLE))!!.thenReturn(null)
 
-    userService!!.authorizeGoogleAccount(user, authCode)
+    userService!!.authorizeOAuth2Service(user, authCode, ServiceType.GOOGLE)
 
     verify(users)!!.update(user)
     assertTrue(user.accounts.containsKey(ServiceType.GOOGLE))
   }
 
-  Test fun authorizeGoogleAccount_accountIsLinkedToExistingUser_accountsAreMerged() {
+  Test fun authorizeOAuth2_accountIsLinkedToExistingUser_accountsAreMerged() {
     val user = User()
     val existingUser = User()
     existingUser.setId("existing_user_id")
@@ -67,7 +68,7 @@ class UserServiceTest {
     existingUser.accounts.put(ServiceType.FLICKR, OAuthData())
     whenMock(users!!.findByAccountId(accountInfo.id, ServiceType.GOOGLE))!!.thenReturn(existingUser)
 
-    userService!!.authorizeGoogleAccount(user, authCode)
+    userService!!.authorizeOAuth2Service(user, authCode, ServiceType.GOOGLE)
 
     verify(users)!!.remove(existingUser)
     assertTrue(user.accounts.containsKey(ServiceType.FLICKR))
@@ -75,28 +76,29 @@ class UserServiceTest {
     assertEquals(existingUser.info, user.info)
   }
 
-  Test fun authorizeGoogleAccount_userHasAccountOfSameType_exceptionThrown() {
+  Test fun authorizeOAuth2_userHasAccountOfSameType_exceptionThrown() {
     val user = User()
     user.accounts.put(ServiceType.GOOGLE, OAuthData())
     var error: AuthorizationError? = null
     try {
-       userService!!.authorizeGoogleAccount(user, authCode)
+       userService!!.authorizeOAuth2Service(user, authCode, ServiceType.GOOGLE)
     } catch(e: AuthorizationException) {
       error = e.error
     }
     assertEquals(error, AuthorizationError.DUPLICATED_ACCOUNT_TYPE)
   }
 
-  Test fun authorizeFlickrAccount_accountNotLinkedToOther_userIsPersisted() {
+  Test fun authorizeOAuth_accountNotLinkedToOther_userIsPersisted() {
     val user = User()
-    user.flickrAuthorizationRequestSecret = "test"
+    user.oauthRequestSecret.put(ServiceType.FLICKR, "test")
     whenMock(flickrService!!.authorize(authCode, "test", verifier))!!.thenReturn(token)
     whenMock(flickrService!!.getAccountInfo(token))!!.thenReturn(accountInfo)
     whenMock(users!!.findByAccountId(accountInfo.id, ServiceType.FLICKR))!!.thenReturn(null)
 
-    userService!!.authorizeFlickrAccount(user, authCode, verifier)
+    userService!!.authorizeOAuthService(user, authCode, verifier, ServiceType.FLICKR)
 
     verify(users)!!.update(user)
     assertTrue(user.accounts.containsKey(ServiceType.FLICKR))
+    assertFalse(user.oauthRequestSecret.containsKey(ServiceType.FLICKR))
   }
 }
