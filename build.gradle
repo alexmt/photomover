@@ -58,7 +58,16 @@ grunt_test.dependsOn("setupGrunt")
 grunt_build.dependsOn("setupGrunt")
 
 // heroku deployment
-task stage(dependsOn: ["grunt_build", "installApp"])
+task stage(dependsOn: [
+    // build web assets
+    "grunt_build",
+    // build application server
+    "installApp"]) {
+  doLast {
+    // remove downloaded npm dependencies
+    cleanNpmInstall.execute()
+  }
+}
 
 repositories {
   mavenCentral()
