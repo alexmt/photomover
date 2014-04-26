@@ -165,7 +165,7 @@ class UserService[Inject](val users: UserRepository, val servicesContainer: Clou
 
   fun getAlbumPhotos(user: User, serviceCode: String, albumId: String) : List<Photo> {
     return callServiceAction(user, serviceCode, {
-      (service, authData) -> service.getPhotos(authData.id, authData.token, albumId, ImageSize.THUMB)
+      (service, authData) -> service.getPhotos(authData.id, authData.token, albumId)
     })
   }
 }

@@ -10,8 +10,9 @@ angular.module('webApp', [
   'ngRoute',
   'route-segment',
   'view-segment',
-  'appFilters'
-]).config(function ($routeProvider, $routeSegmentProvider, $httpProvider) {
+  'appFilters',
+  'ui.bootstrap'
+]).config(function ($routeProvider, $routeSegmentProvider) {
   $routeSegmentProvider.options.autoLoadTemplates = true;
 
   var userInfoDep = {

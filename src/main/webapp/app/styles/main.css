@@ -27,5 +27,7 @@ html, body, .app-content {
   padding: 20px 0;
 }
 
-
+img.full-size-photo {
+  width: 100%;
+}
 

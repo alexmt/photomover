@@ -100,13 +100,14 @@ class FlickrService(val appSettings: FlickrAppSettings, val urlResolver: UrlReso
     }
   }
 
-  override fun getPhotos(userId: String, token: OAuthToken, albumId: String, size: ImageSize): List<Photo> {
+  override fun getPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo> {
     return token.callFlickr {
       it.getPhotosetsInterface()!!.getPhotos(albumId, 0, 0)!!.map {
         Photo(
             id = it.getId()!!,
             name = it.getTitle()!!,
-            url = urlResolver.getPhotoRedirectUrl(it.getId()!!, size))
+            thumbUrl = urlResolver.getPhotoRedirectUrl(it.getId()!!, ImageSize.THUMB),
+            largeUrl = urlResolver.getPhotoRedirectUrl(it.getId()!!, ImageSize.LARGE))
       }
     }
   }

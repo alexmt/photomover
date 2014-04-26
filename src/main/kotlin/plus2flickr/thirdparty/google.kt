@@ -28,6 +28,7 @@ import com.google.api.client.auth.oauth2.RefreshTokenRequest
 import com.google.api.client.googleapis.auth.oauth2.GoogleOAuthConstants
 import com.google.api.client.http.GenericUrl
 import com.google.api.client.auth.oauth2.ClientParametersAuthentication
+import com.google.gdata.data.photos.PhotoEntry
 
 data class GoogleAppSettings(
     var clientId: String = "",
@@ -40,6 +41,13 @@ class GoogleService[Inject](
     val transport: HttpTransport,
     val jsonFactory: JsonFactory,
     val settings: GoogleAppSettings) : CloudService {
+
+  private fun PhotoEntry.getPhotoUrl(size: ImageSize): String =
+      when (size) {
+        ImageSize.THUMB -> this.getMediaThumbnails()!!.maxBy { it.getHeight() }!!.getUrl()!!
+        ImageSize.LARGE -> this.getMediaContents()!!.maxBy { it.getHeight() }!!.getUrl()!!
+        else -> throw IllegalArgumentException("Size '$size' is not supported.")
+      }
 
   private fun OAuthToken.toGoogleToken(): TokenResponse {
     val response = TokenResponse()
@@ -113,12 +121,15 @@ class GoogleService[Inject](
     }
   }
 
-  override fun getPhotos(userId: String, token: OAuthToken, albumId: String, size: ImageSize): List<Photo> {
+  override fun getPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo> {
     return token.callPicasa {
       val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId/albumid/$albumId")
       it.getFeed(feedUrl, javaClass<AlbumFeed>())!!.getPhotoEntries()!!.map {
         Photo(
-            url = it.getMediaThumbnails()!!.maxBy { it.getHeight() }!!.getUrl()!!
+            id = it.getId()!!,
+            name = it.getTitle()?.getPlainText() ?: "",
+            thumbUrl = it.getPhotoUrl(ImageSize.THUMB),
+            largeUrl = it.getPhotoUrl(ImageSize.LARGE)
         )
       }
     }

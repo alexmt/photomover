@@ -1,7 +1,19 @@
+<script type="text/ng-template" id="photoModal.html">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h4 class="modal-title">{{photo.name}}</h4>
+    </div>
+    <div class="modal-body">
+      <img class="center-block full-size-photo" ng-src="{{photo.largeUrl}}">
+    </div>
+  </div>
+</script>
+
 <div class="row">
   <div class="col-md-2" ng-repeat="photo in photos">
-    <a class="thumbnail">
-      <img ng-src="{{photo.url}}" title="{{photo.name}}">
+    <a class="thumbnail" ng-click="showPhoto(photo.index)">
+      <img ng-src="{{photo.thumbUrl}}">
     </a>
   </div>
 </div>
