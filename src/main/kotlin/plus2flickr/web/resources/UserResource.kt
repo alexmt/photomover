@@ -5,7 +5,6 @@ import plus2flickr.thirdparty.AuthorizationException
 import plus2flickr.web.models.UserInfoViewModel
 import javax.ws.rs.Path
 import javax.ws.rs.POST
-import plus2flickr.thirdparty.Album
 import javax.ws.rs.GET
 import plus2flickr.domain.User
 import plus2flickr.web.RequestState
@@ -17,15 +16,12 @@ import javax.servlet.http.HttpServletResponse
 import com.google.common.base.CharMatcher
 import org.scribe.model.OAuthConstants
 import javax.ws.rs.PathParam
-import plus2flickr.thirdparty.ImageSize
-import plus2flickr.thirdparty.Photo
-import plus2flickr.web.filters.AuthenticationResponseFilter
 import plus2flickr.web.models.DetailedUserInfoViewModel
 import plus2flickr.domain.UserInfo
 import plus2flickr.web.models.ErrorInfo
-import com.google.inject.Inject
 import plus2flickr.CloudServiceContainer
 import plus2flickr.web.models.OAuth2VerifyData
+import com.google.inject.Inject
 
 Path("/user") Produces("application/json")
 class UserResource [Inject] (
@@ -73,10 +69,9 @@ class UserResource [Inject] (
   POST Path("removeService") fun removeService(service: String) =
       userService.removeService(state.currentUser, service)
 
-  POST Path("deleteAccount") fun deleteAccount(
-      Context request: HttpServletRequest, Context response: HttpServletResponse) {
+  POST Path("deleteAccount") fun deleteAccount(Context response: HttpServletResponse) {
     userService.deleteUser(state.currentUser)
-    logout(request, response)
+    logout(response)
   }
 
   POST Path("/verifyOAuth2") fun verifyOAuth2(data: OAuth2VerifyData)
@@ -108,16 +103,8 @@ class UserResource [Inject] (
     response.sendRedirect("/")
   }
 
-  GET Path("/logout") fun logout(
-      Context request: HttpServletRequest, Context response: HttpServletResponse) {
-    request.getCookies()?.filter {
-      it.getName().equals(AuthenticationResponseFilter.authCookieName)
-    }?.forEach {
-      it.setPath("/")
-      it.setValue("")
-      it.setMaxAge(0)
-      response.addCookie(it)
-    }
+  GET Path("/logout") fun logout(Context response: HttpServletResponse) {
+    state.user = null
     response.sendRedirect("/")
   }
 }

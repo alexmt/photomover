@@ -13,12 +13,8 @@ RequestScoped class RequestState[Inject] (
     val response: HttpServletResponse,
     val userService: UserService) {
 
-  private var user: User? = null
+  var user: User? = null
 
   val currentUser : User
       get() = user!!
-
-  fun changeCurrentUser(user: User) {
-    this.user = user
-  }
 }

@@ -22,6 +22,9 @@ import plus2flickr.guice.WebServicesModule
 import org.eclipse.jetty.server.handler.HandlerList
 import org.eclipse.jetty.server.handler.ResourceHandler
 import org.eclipse.jetty.server.handler.ContextHandler
+import org.eclipse.jetty.server.session.HashSessionIdManager
+import org.eclipse.jetty.server.session.SessionHandler
+import org.eclipse.jetty.server.session.HashSessionManager
 
 data class StartWebOptions(
     Option("-p") var port: Int = 8080,
@@ -72,6 +75,7 @@ fun start(options: StartWebOptions) {
     }
   })
   servicesContext.addFilter(javaClass<GuiceFilter>(), "/*", EnumSet.of(DispatcherType.REQUEST))
+  servicesContext.setSessionHandler(SessionHandler(HashSessionManager()))
 
   // TODO(amatyushentsev): stop serving static content in app server
   val resourcesHandler = ResourceHandler()
@@ -83,6 +87,7 @@ fun start(options: StartWebOptions) {
   handlers.setHandlers(array(servicesContext, staticContext))
 
   val server = Server(options.port)
+  server.setSessionIdManager(HashSessionIdManager())
   server.setHandler(handlers)
   server.start()
   server.join()

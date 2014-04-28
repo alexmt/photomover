@@ -7,32 +7,48 @@ import com.sun.jersey.spi.container.ContainerRequest
 import com.sun.jersey.spi.container.ContainerResponse
 import com.sun.jersey.spi.container.ContainerRequestFilter
 import plus2flickr.web.RequestState
-import javax.ws.rs.core.HttpHeaders
-import javax.ws.rs.core.NewCookie
+import javax.servlet.http.HttpServletRequest
+import javax.ws.rs.core.Context
+import javax.servlet.http.HttpSession
+import com.google.common.base.Strings
 import com.google.inject.Inject
 
-class AuthenticationResponseFilter[Inject](val stateProvider: Provider<RequestState>, val userService: UserService)
+class AuthenticationResponseFilter[Inject](
+    val stateProvider: Provider<RequestState>,
+    val userService: UserService,
+    Context val requestProvider: Provider<HttpServletRequest> )
 : ContainerResponseFilter, ContainerRequestFilter {
 
   class object {
-    public final val authCookieName : String = "auth"
+    public fun setSessionUserId(userId: String?, session: HttpSession) {
+      if (Strings.isNullOrEmpty(userId)) {
+        session.removeAttribute("userId")
+      } else {
+        session.setAttribute("userId", userId)
+      }
+    }
+
+    public fun getSessionUserId(session: HttpSession): String? {
+      return session.getAttribute("userId")?.toString()
+    }
   }
 
   override fun filter(request: ContainerRequest?): ContainerRequest? {
+    val session = requestProvider.get()!!.getSession(true)!!
+    val userId = getSessionUserId(session)
     val state = stateProvider.get()!!
-    val authCookie = request?.getCookies()?.get(authCookieName)?.getValue()
-    state.changeCurrentUser(if (authCookie == null || authCookie.isEmpty()) {
+    state.user = if (userId == null || userId.isEmpty()) {
       userService.createUser()
     } else {
-      userService.findUserById(authCookie) ?: userService.createUser()
-    })
+      userService.findUserById(userId) ?: userService.createUser()
+    }
     return request
   }
 
   override fun filter(request: ContainerRequest?, response: ContainerResponse?): ContainerResponse? {
-    val cookie = NewCookie(authCookieName,
-        stateProvider.get()!!.currentUser.getId(), "/", null, null, NewCookie.DEFAULT_MAX_AGE, false)
-    response?.getHttpHeaders()!!.put(HttpHeaders.SET_COOKIE, listOf(cookie))
+    val state = stateProvider.get()!!
+    val session = requestProvider.get()!!.getSession(true)!!
+    setSessionUserId(state.user?.getId(), session)
     return response
   }
 }
