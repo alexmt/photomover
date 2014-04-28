@@ -24,10 +24,6 @@ enum class ImageSize {
   LARGE
 }
 
-trait UrlResolver {
-  fun getPhotoRedirectUrl(id: String, size: ImageSize): String
-}
-
 trait OAuth1Service {
   fun authorize(token: String, requestSecret: String, verifier: String): OAuthToken
   fun requestAuthorization(callback: String): AuthorizationRequest

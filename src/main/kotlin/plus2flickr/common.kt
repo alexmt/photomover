@@ -1,7 +1,6 @@
 package plus2flickr
 
 import plus2flickr.thirdparty.CloudService
-import plus2flickr.thirdparty.UrlResolver
 import plus2flickr.thirdparty.ImageSize
 
 class CloudServiceContainer {
@@ -21,9 +20,4 @@ class CloudServiceContainer {
   }
   val serviceCodes: List<String>
       get() = codeToService.keySet().toList()
-}
-
-class ServiceUrlResolver(val serviceCode: String) : UrlResolver {
-  override fun getPhotoRedirectUrl(id: String, size: ImageSize) =
-      "/services/photo/$serviceCode/photo/$id/$size/redirect"
 }
