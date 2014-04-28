@@ -19,6 +19,7 @@ import com.google.common.base.Strings
 import plus2flickr.domain.ServiceOperationErrorException
 import plus2flickr.domain.OperationError
 import com.google.common.base.Preconditions
+import plus2flickr.thirdparty.AlbumInfo
 
 enum class UserServiceError {
   CANNOT_REMOVE_LAST_SERVICE
@@ -163,9 +164,15 @@ class UserService[Inject](val users: UserRepository, val servicesContainer: Clou
     })
   }
 
+  fun getAlbumInfo(user: User, service: String, albumId: String) : AlbumInfo {
+    return callServiceAction(user, service, {
+      (service, authData) -> service.getAlbumInfo(authData.id, authData.token, albumId)
+    });
+  }
+
   fun getAlbumPhotos(user: User, serviceCode: String, albumId: String) : List<Photo> {
     return callServiceAction(user, serviceCode, {
-      (service, authData) -> service.getPhotos(authData.id, authData.token, albumId)
+      (service, authData) -> service.getAlbumPhotos(authData.id, authData.token, albumId)
     })
   }
 }

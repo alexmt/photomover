@@ -12,9 +12,7 @@ data class DetailedUserInfoViewModel(
     var linkedServices: List<String> = listOf())
 
 data class GoogleAppSettingsViewModel(var clientId: String, var scopes: List<String>)
-
-data class ServiceAlbumInput(var albumId: String = "", var service: String = "")
-
+data class OAuth2VerifyData(var service: String = "", var code: String = "")
 data class ErrorInfo(var error: String = "", var message: String = "")
 
 open data class OperationResponse<T>(

@@ -23,19 +23,9 @@ angular.module('services')
         method: 'GET',
         params: { action: 'detailedInfo' }
       },
-      authorizeGoogleAccount: {
+      authorizeOAuth2Account: {
         method: 'POST',
-        url: '/services/user/google/verifyOAuth2'
-      },
-      albums: {
-        method: 'POST',
-        params: { action: 'albums' },
-        isArray: true
-      },
-      photos: {
-        method: 'POST',
-        isArray: true,
-        params: { action: 'photos' }
+        url: '/services/user/verifyOAuth2'
       }
     });
   }]);

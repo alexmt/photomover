@@ -29,6 +29,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleOAuthConstants
 import com.google.api.client.http.GenericUrl
 import com.google.api.client.auth.oauth2.ClientParametersAuthentication
 import com.google.gdata.data.photos.PhotoEntry
+import plus2flickr.thirdparty.AlbumInfo
 
 data class GoogleAppSettings(
     var clientId: String = "",
@@ -121,7 +122,15 @@ class GoogleService[Inject](
     }
   }
 
-  override fun getPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo> {
+  override fun getAlbumInfo(userId: String, token: OAuthToken, albumId: String): AlbumInfo {
+    return token.callPicasa {
+      val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId/albumid/$albumId")
+      val info = it.getFeed(feedUrl, javaClass<AlbumFeed>())!!
+      AlbumInfo(name = info.getTitle()!!.getPlainText()!!, photoCount = info.getPhotoEntries()!!.size)
+    }
+  }
+
+  override fun getAlbumPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo> {
     return token.callPicasa {
       val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId/albumid/$albumId")
       it.getFeed(feedUrl, javaClass<AlbumFeed>())!!.getPhotoEntries()!!.map {

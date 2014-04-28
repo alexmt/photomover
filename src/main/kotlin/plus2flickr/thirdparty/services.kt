@@ -15,6 +15,7 @@ data class AccountInfo(
 data class OAuthToken(
     var accessToken: String = "", var refreshToken: String? = null, var oauth1TokenSecret: String? = null)
 data class Album(var id: String = "", var name: String = "", var thumbnailUrl: String = "")
+data class AlbumInfo(var name: String = "", var photoCount: Int = 0)
 data class Photo(var id: String = "", var name: String = "", var thumbUrl: String = "", var largeUrl: String = "")
 data class AuthorizationRequest(val url : String, val secret: String)
 
@@ -40,6 +41,7 @@ trait OAuth2Service {
 trait CloudService : OAuth1Service, OAuth2Service {
   fun getAccountInfo(token: OAuthToken): AccountInfo
   fun getAlbums(userId: String, token: OAuthToken): List<Album>
-  fun getPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo>
+  fun getAlbumInfo(userId: String, token: OAuthToken, albumId: String): AlbumInfo
+  fun getAlbumPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo>
   fun getPhotoUrl(id: String, size: ImageSize, token: OAuthToken): String
 }

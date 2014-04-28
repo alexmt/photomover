@@ -22,6 +22,7 @@ import com.flickr4java.flickr.photos.Size
 import plus2flickr.thirdparty.Photo
 import com.flickr4java.flickr.FlickrException
 import plus2flickr.thirdparty.InvalidTokenException
+import plus2flickr.thirdparty.AlbumInfo
 
 data class FlickrAppSettings(var apiKey: String = "", var apiSecret: String = "")
 
@@ -100,7 +101,14 @@ class FlickrService(val appSettings: FlickrAppSettings, val urlResolver: UrlReso
     }
   }
 
-  override fun getPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo> {
+  override fun getAlbumInfo(userId: String, token: OAuthToken, albumId: String): AlbumInfo {
+    return token.callFlickr {
+      val info = it.getPhotosetsInterface()!!.getInfo(albumId)!!
+      AlbumInfo(name = info.getTitle()!!, photoCount = info.getPhotoCount())
+    }
+  }
+
+  override fun getAlbumPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo> {
     return token.callFlickr {
       it.getPhotosetsInterface()!!.getPhotos(albumId, 0, 0)!!.map {
         Photo(

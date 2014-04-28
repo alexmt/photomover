@@ -22,13 +22,14 @@ import plus2flickr.thirdparty.Photo
 import plus2flickr.web.filters.AuthenticationResponseFilter
 import plus2flickr.web.models.DetailedUserInfoViewModel
 import plus2flickr.domain.UserInfo
-import plus2flickr.web.models.ServiceAlbumInput
 import plus2flickr.web.models.ErrorInfo
 import com.google.inject.Inject
 import plus2flickr.CloudServiceContainer
+import plus2flickr.web.models.OAuth2VerifyData
 
 Path("/user") Produces("application/json")
-class UserResource [Inject] (val userService: UserService, val state: RequestState, val services: CloudServiceContainer) {
+class UserResource [Inject] (
+    val userService: UserService, val state: RequestState, val services: CloudServiceContainer) {
 
   private fun User.getUserInfo(): UserInfoViewModel {
     val name = if (info.firstName != null && info.lastName != null) {
@@ -69,21 +70,6 @@ class UserResource [Inject] (val userService: UserService, val state: RequestSta
     ))
   }
 
-  POST Path("/albums") fun albums(service: String): List<Album> {
-    return userService.getAlbums(state.currentUser, service)
-  }
-
-  POST Path("/photos") fun photos(input: ServiceAlbumInput): List<Photo> {
-    return userService.getAlbumPhotos(
-        state.currentUser, input.service, input.albumId)
-  }
-
-  GET Path("/photo/redirect/{service}/{id}/{size}") fun goToPhoto(Context response: HttpServletResponse,
-      PathParam("service") service: String, PathParam("id") id: String, PathParam("size") size: String) {
-    val imageSize = ImageSize.valueOf(size)
-    response.sendRedirect(userService.getPhotoUrl(state.currentUser, service, id, imageSize))
-  }
-
   POST Path("removeService") fun removeService(service: String) =
       userService.removeService(state.currentUser, service)
 
@@ -93,10 +79,10 @@ class UserResource [Inject] (val userService: UserService, val state: RequestSta
     logout(request, response)
   }
 
-  POST Path("/{service}/verifyOAuth2") fun verifyOAuth2(PathParam("service") service: String, code: String)
+  POST Path("/verifyOAuth2") fun verifyOAuth2(data: OAuth2VerifyData)
       : OperationResponse<UserInfoViewModel> {
     try {
-      userService.authorizeOAuth2Service(state.currentUser, code, service)
+      userService.authorizeOAuth2Service(state.currentUser, data.code, data.service)
       return OperationResponse(data = state.currentUser.getUserInfo(), success = true)
     } catch (e: AuthorizationException){
       return OperationResponse(success = false, errors = listOf(ErrorInfo(message = e.message)))

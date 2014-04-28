@@ -1,10 +1,10 @@
 'use strict';
 
 angular.module('controllers')
-  .controller('PhotosCtrl', ['$scope', '$routeSegment', '$modal', 'User',
-    function ($scope, $routeSegment, $modal, User) {
+  .controller('PhotosCtrl', ['$scope', '$routeSegment', '$modal', 'Photo',
+    function ($scope, $routeSegment, $modal, Photo) {
 
-      User.photos({
+      Photo.albumPhotos({
         service: $routeSegment.$routeParams.service,
         albumId: $routeSegment.$routeParams.id
       }, function (photos) {
@@ -14,6 +14,14 @@ angular.module('controllers')
         $scope.photos = photos;
       });
 
+      Photo.albumInfo({
+        service: $routeSegment.$routeParams.service,
+        albumId: $routeSegment.$routeParams.id
+      }, function(info) {
+        $scope.albumInfo = info;
+      });
+
+      $scope.service = $routeSegment.$routeParams.service;
       $scope.showPhoto = function (index) {
         $modal.open({
           templateUrl: 'photoModal.html',

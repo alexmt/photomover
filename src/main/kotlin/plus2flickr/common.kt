@@ -24,5 +24,6 @@ class CloudServiceContainer {
 }
 
 class ServiceUrlResolver(val serviceCode: String) : UrlResolver {
-  override fun getPhotoRedirectUrl(id: String, size: ImageSize) = "/services/user/photo/redirect/$serviceCode/$id/$size"
+  override fun getPhotoRedirectUrl(id: String, size: ImageSize) =
+      "/services/photo/$serviceCode/photo/$id/$size/redirect"
 }
