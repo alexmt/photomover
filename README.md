@@ -1,4 +1,4 @@
-plus2flickr [![Build Status](https://travis-ci.org/alexmt/plus2flickr.png?branch=master)](https://travis-ci.org/alexmt/plus2flickr)
+plus2flickr [![Build Status](https://travis-ci.org/alexmt/plus2flickr.png?branch=master)](https://travis-ci.org/alexmt/plus2flickr) [![Analytics](https://ga-beacon.appspot.com/UA-51691703-1/plus2flickr/readme)](https://github.com/igrigorik/ga-beacon)
 ===========
 
 A Web Application which allows to manage photos/pictures stored in Google Plus/Flickr including following:
@@ -23,3 +23,4 @@ CLI Utils:
   upload -s /home/matyushentsev/Pictures/Google -appKey [yourAppKey] -appSecret [yourAppSecret]
 
   each directory will be uploaded to set with the same name
+  
