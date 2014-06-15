@@ -62,6 +62,8 @@ data class StartWebOptions(
 }
 
 fun start(options: StartWebOptions) {
+  val googleAppSettings = options.getGoogleAppSettings()
+  val flickrAppSettings = options.getFlickrAppSettings()
   val servicesContext = ServletContextHandler()
   servicesContext.setContextPath("/services")
   servicesContext.addEventListener(object : GuiceServletContextListener() {
@@ -69,7 +71,7 @@ fun start(options: StartWebOptions) {
       val injector = Guice.createInjector(
           WebServicesModule(),
           DbModule(url = options.couchDb),
-          ServicesModule(options.getGoogleAppSettings(), options.getFlickrAppSettings()))
+          ServicesModule(googleAppSettings, flickrAppSettings))
       injector!!.getInstance(javaClass<CouchDbManager>())!!.ensureDbExists()
       return injector
     }
