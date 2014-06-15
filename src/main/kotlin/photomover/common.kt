@@ -21,3 +21,5 @@ class CloudServiceContainer {
   val serviceCodes: List<String>
       get() = codeToService.keySet().toList()
 }
+
+data class AppPresentationSettings(val photosPerPage: Int, val maxPagesCount: Int)

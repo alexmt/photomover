@@ -6,7 +6,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler
 import com.google.inject.servlet.GuiceFilter
 import javax.servlet.DispatcherType
 import java.util.EnumSet
-import photomover.guice.ServicesModule
+import photomover.guice.AppModule
 import photomover.guice.DbModule
 import photomover.thirdparty.flickr.FlickrAppSettings
 import java.io.IOException
@@ -25,6 +25,7 @@ import org.eclipse.jetty.server.handler.ContextHandler
 import org.eclipse.jetty.server.session.HashSessionIdManager
 import org.eclipse.jetty.server.session.SessionHandler
 import org.eclipse.jetty.server.session.HashSessionManager
+import photomover.AppPresentationSettings
 
 data class StartWebOptions(
     Option("-p") var port: Int = 8080,
@@ -64,6 +65,8 @@ data class StartWebOptions(
 fun start(options: StartWebOptions) {
   val googleAppSettings = options.getGoogleAppSettings()
   val flickrAppSettings = options.getFlickrAppSettings()
+  val presentationSettings = AppPresentationSettings(photosPerPage = 20, maxPagesCount = 5)
+
   val servicesContext = ServletContextHandler()
   servicesContext.setContextPath("/services")
   servicesContext.addEventListener(object : GuiceServletContextListener() {
@@ -71,7 +74,7 @@ fun start(options: StartWebOptions) {
       val injector = Guice.createInjector(
           WebServicesModule(),
           DbModule(url = options.couchDb),
-          ServicesModule(googleAppSettings, flickrAppSettings))
+          AppModule(googleAppSettings, flickrAppSettings, presentationSettings))
       injector!!.getInstance(javaClass<CouchDbManager>())!!.ensureDbExists()
       return injector
     }

@@ -24,6 +24,7 @@ import photomover.thirdparty.InvalidTokenException
 import photomover.thirdparty.AlbumInfo
 import com.flickr4java.flickr.photosets.Photoset
 import com.flickr4java.flickr.photos.Photo as FlickrPhoto
+import photomover.thirdparty.Page
 
 data class FlickrAppSettings(var apiKey: String = "", var apiSecret: String = "")
 
@@ -124,9 +125,9 @@ class FlickrService(val appSettings: FlickrAppSettings) : CloudService {
     }
   }
 
-  override fun getAlbumPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo> {
+  override fun getAlbumPhotos(userId: String, token: OAuthToken, albumId: String, page: Page): List<Photo> {
     return token.callFlickr {
-      it.getPhotosetsInterface()!!.getPhotos(albumId, 0, 0)!!.map {
+      it.getPhotosetsInterface()!!.getPhotos(albumId, page.size, page.number)!!.map {
         Photo(
             id = it.getId()!!,
             name = it.getTitle()!!,

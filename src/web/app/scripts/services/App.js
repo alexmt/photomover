@@ -6,6 +6,10 @@ angular.module('services')
       googleAppSettings: {
         method: 'GET',
         url: '/services/app/google/settings'
+      },
+      presentationSettings: {
+        method: 'GET',
+        url: 'services/app/settings/presentation'
       }
     });
   }]);

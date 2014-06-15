@@ -13,17 +13,24 @@ import photomover.web.RequestState
 import javax.inject.Inject
 import javax.ws.rs.Produces
 import photomover.thirdparty.AlbumInfo
+import photomover.thirdparty.Page
+import javax.ws.rs.QueryParam
+import photomover.AppPresentationSettings
 
 Path("/photos") Produces("application/json")
-class PhotoResource[Inject](val userService: UserService, val state: RequestState) {
+class PhotoResource[Inject](
+    val userService: UserService, val state: RequestState, var presentationSettings: AppPresentationSettings) {
 
   GET Path("/{service}/albums") fun albums(PathParam("service") service: String): List<Album> {
     return userService.getAlbums(state.currentUser, service)
   }
 
   GET Path("/{service}/albums/{albumId}/photos") fun albumPhotos(
-      PathParam("service") service: String, PathParam("albumId") albumId: String): List<Photo> {
-    return userService.getAlbumPhotos(state.currentUser, service, albumId)
+      PathParam("service") service: String,
+      PathParam("albumId") albumId: String,
+      QueryParam("page") page: String?): List<Photo> {
+    return userService.getAlbumPhotos(
+        state.currentUser, service, albumId, Page(Integer.parseInt(page ?: "0"), presentationSettings.photosPerPage))
   }
 
   GET Path("/{service}/albums/{albumId}/info") fun albumInfo(

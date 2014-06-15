@@ -20,6 +20,7 @@ import photomover.domain.ServiceOperationErrorException
 import photomover.domain.OperationError
 import com.google.common.base.Preconditions
 import photomover.thirdparty.AlbumInfo
+import photomover.thirdparty.Page
 
 enum class UserServiceError {
   CANNOT_REMOVE_LAST_SERVICE
@@ -170,9 +171,9 @@ class UserService[Inject](val users: UserRepository, val servicesContainer: Clou
     });
   }
 
-  fun getAlbumPhotos(user: User, serviceCode: String, albumId: String) : List<Photo> {
+  fun getAlbumPhotos(user: User, serviceCode: String, albumId: String, page: Page) : List<Photo> {
     return callServiceAction(user, serviceCode, {
-      (service, authData) -> service.getAlbumPhotos(authData.id, authData.token, albumId)
+      (service, authData) -> service.getAlbumPhotos(authData.id, authData.token, albumId, page);
     })
   }
 }

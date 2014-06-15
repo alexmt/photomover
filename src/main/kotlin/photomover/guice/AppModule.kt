@@ -7,9 +7,12 @@ import com.google.inject.Provides
 import photomover.thirdparty.google.GoogleService
 import photomover.thirdparty.flickr.FlickrService
 import photomover.CloudServiceContainer
+import photomover.AppPresentationSettings
 
-class ServicesModule(
-    val googleAppSettings: GoogleAppSettings, val flickrAppSettings: FlickrAppSettings) : AbstractModule() {
+class AppModule(
+    val googleAppSettings: GoogleAppSettings,
+    val flickrAppSettings: FlickrAppSettings,
+    val presentationSettings: AppPresentationSettings) : AbstractModule() {
 
   override fun configure() {
     install(GoogleServiceModule(googleAppSettings))
@@ -22,4 +25,6 @@ class ServicesModule(
     container.register("flickr", flickr)
     return container
   }
+
+  Provides fun provideAppPresentationSettings() = presentationSettings
 }

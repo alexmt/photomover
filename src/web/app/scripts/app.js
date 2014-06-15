@@ -24,7 +24,7 @@ angular.module('webApp', [
   $routeSegmentProvider
     .when('/home', 'home.photos')
     .when('/home/photos/:service/albums', 'home.photos.albums')
-    .when('/home/photos/:service/albums/:id/albumPhotos', 'home.photos.albumPhotos')
+    .when('/home/photos/:service/albums/:id/albumPhotos/:page?', 'home.photos.albumPhotos')
     .when('/account', 'home.account')
     .when('/login', 'login')
 
@@ -46,7 +46,12 @@ angular.module('webApp', [
         .segment('albumPhotos', {
           templateUrl: 'views/photos/albumPhotos.html',
           controller: 'PhotosCtrl',
-          dependencies: ['service', 'id']
+          dependencies: ['service', 'id'],
+          resolve: {
+            presentationSettings: ['App', function(App) {
+              return App.presentationSettings().$promise;
+            }]
+          }
         })
       .up()
       .segment('account', {

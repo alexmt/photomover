@@ -30,6 +30,7 @@ import com.google.api.client.http.GenericUrl
 import com.google.api.client.auth.oauth2.ClientParametersAuthentication
 import com.google.gdata.data.photos.PhotoEntry
 import photomover.thirdparty.AlbumInfo
+import photomover.thirdparty.Page
 
 data class GoogleAppSettings(
     var clientId: String = "",
@@ -42,6 +43,8 @@ class GoogleService[Inject](
     val transport: HttpTransport,
     val jsonFactory: JsonFactory,
     val settings: GoogleAppSettings) : CloudService {
+
+  private val apiFeed = "https://picasaweb.google.com/data/feed/api/user"
 
   private fun PhotoEntry.getPhotoUrl(size: ImageSize): String =
       when (size) {
@@ -112,7 +115,7 @@ class GoogleService[Inject](
 
   override fun getAlbums(userId: String, token: OAuthToken): List<Album> {
     return token.callPicasa {
-      val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId?kind=album")
+      val feedUrl = URL("$apiFeed/$userId?kind=album")
       it.getFeed(feedUrl, javaClass<UserFeed>())!!.getAlbumEntries()!!.map {
         Album(
             id = it.getGphotoId()!!,
@@ -124,15 +127,15 @@ class GoogleService[Inject](
 
   override fun getAlbumInfo(userId: String, token: OAuthToken, albumId: String): AlbumInfo {
     return token.callPicasa {
-      val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId/albumid/$albumId")
+      val feedUrl = URL("$apiFeed/$userId/albumid/$albumId?max-results=0")
       val info = it.getFeed(feedUrl, javaClass<AlbumFeed>())!!
-      AlbumInfo(name = info.getTitle()!!.getPlainText()!!, photoCount = info.getPhotoEntries()!!.size)
+      AlbumInfo(name = info.getTitle()!!.getPlainText()!!, photoCount = info.getPhotosUsed()!!)
     }
   }
 
-  override fun getAlbumPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo> {
+  override fun getAlbumPhotos(userId: String, token: OAuthToken, albumId: String, page: Page): List<Photo> {
     return token.callPicasa {
-      val feedUrl = URL("https://picasaweb.google.com/data/feed/api/user/$userId/albumid/$albumId")
+      val feedUrl = URL("$apiFeed/$userId/albumid/$albumId?start-index=${page.startIndex}&max-results=${page.size}")
       it.getFeed(feedUrl, javaClass<AlbumFeed>())!!.getPhotoEntries()!!.map {
         Photo(
             id = it.getId()!!,

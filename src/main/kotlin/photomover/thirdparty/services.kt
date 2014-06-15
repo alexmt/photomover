@@ -18,6 +18,10 @@ data class Album(var id: String = "", var name: String = "", var thumbnailUrl: S
 data class AlbumInfo(var name: String = "", var photoCount: Int = 0)
 data class Photo(var id: String = "", var name: String = "", var thumbUrl: String = "", var largeUrl: String = "")
 data class AuthorizationRequest(val url : String, val secret: String)
+data class Page(val number: Int, val size: Int) {
+  val startIndex : Int
+    get() = (number - 1) * size + 1
+}
 
 enum class ImageSize {
   THUMB
@@ -38,6 +42,6 @@ trait CloudService : OAuth1Service, OAuth2Service {
   fun getAccountInfo(token: OAuthToken): AccountInfo
   fun getAlbums(userId: String, token: OAuthToken): List<Album>
   fun getAlbumInfo(userId: String, token: OAuthToken, albumId: String): AlbumInfo
-  fun getAlbumPhotos(userId: String, token: OAuthToken, albumId: String): List<Photo>
+  fun getAlbumPhotos(userId: String, token: OAuthToken, albumId: String, page: Page): List<Photo>
   fun getPhotoUrl(id: String, size: ImageSize, token: OAuthToken): String
 }
