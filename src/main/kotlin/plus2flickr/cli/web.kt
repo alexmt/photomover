@@ -31,7 +31,7 @@ data class StartWebOptions(
     Option("-couchDb") var couchDb: String = "http://localhost:5984",
     Option("-flickrAppSettings") var flickrAppSettings: String? = null,
     Option("-googleAppSettings") var googleAppSettings: String? = null,
-    Option("-staticContentPath") var staticContentPath: String = "src/main/webapp/app") {
+    Option("-staticContentPath") var staticContentPath: String = "src/web/app") {
 
   private fun readResource(path: String): String {
     val resource = javaClass<StartWebOptions>().getResource(path)
