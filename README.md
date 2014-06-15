@@ -1,4 +1,4 @@
-photomover [![Build Status](https://travis-ci.org/alexmt/photomover.svg?branch=master)](https://travis-ci.org/alexmt/photomover) [![Analytics](https://ga-beacon.appspot.com/UA-51691703-1/plus2flickr/readme)](https://github.com/igrigorik/ga-beacon)
+photomover [![Build Status](https://travis-ci.org/alexmt/photomover.svg?branch=master)](https://travis-ci.org/alexmt/photomover) [![Analytics](https://ga-beacon.appspot.com/UA-51691703-1/photomover/readme)](https://github.com/igrigorik/ga-beacon)
 ===========
 
 A Web Application which allows to manage photos/pictures stored in Google Plus/Flickr including following:
@@ -12,7 +12,7 @@ CLI Utils:
 
 - Group unsorted photos by month:
 
-  plus2flickr.jar organize -s /Photos -o /Photos/Unsorted -deleteSource True
+  photomover.jar organize -s /Photos -o /Photos/Unsorted -deleteSource True
 
   -s - source directory
   -o - output directory

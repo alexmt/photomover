@@ -3,7 +3,7 @@ target/
 .gradle
 build
 bin
-plus2flickr.iml
+photomover.iml
 
 node_modules
 dist

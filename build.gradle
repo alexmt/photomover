@@ -12,8 +12,8 @@ buildscript {
 
 apply plugin: "application"
 
-applicationName = "Plus2Flickr"
-mainClassName = "plus2flickr.cli.CliPackage"
+applicationName = "Photomover"
+mainClassName = "photomover.cli.CliPackage"
 
 apply plugin: "kotlin"
 apply plugin: "grunt"
