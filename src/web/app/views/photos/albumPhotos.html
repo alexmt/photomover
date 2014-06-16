@@ -13,21 +13,16 @@
 <div class="row">
   <div class="col-md-12">
     <h4>{{service | capitalizeFirst}} album "{{albumInfo.name}}".</h4>
-    <pagination
-      ng-model="currentPage"
-      ng-change="pageChanged()"
-      total-items="albumInfo.photoCount"
-      boundary-links="true"
-      items-per-page="photosPerPage"
-      max-size="maxPagesCount"></pagination>
     <a class="pull-right" ng-href="#/home/photos/{{service}}/albums">Back to {{service | capitalizeFirst}} albums.</a>
     <p class="text-muted">Album has {{albumInfo.photoCount}} photos.</p>
   </div>
 </div>
 <div class="row">
-  <div class="col-md-2" ng-repeat="photo in photos">
-    <a class="thumbnail" ng-click="showPhoto(photo.index)">
-      <img ng-src="{{photo.thumbUrl}}">
-    </a>
+  <div class="col-md-12">
+    <pagination ng-model="currentPage" ng-change="pageChanged()" total-items="albumInfo.photoCount"
+                boundary-links="true" items-per-page="photosPerPage" max-size="maxPagesCount"></pagination>
+    <gallery pictures="photos" on-picture-click="showPhoto(index)"></gallery>
+    <pagination ng-model="currentPage" ng-change="pageChanged()" total-items="albumInfo.photoCount"
+                boundary-links="true" items-per-page="photosPerPage" max-size="maxPagesCount"></pagination>
   </div>
 </div>

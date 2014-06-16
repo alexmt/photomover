@@ -3,6 +3,7 @@
 angular.module('controllers', ['services']);
 angular.module('services', ['ngResource']);
 angular.module('appFilters', []);
+angular.module('directives', []);
 
 angular.module('webApp', [
   'services',
@@ -11,7 +12,8 @@ angular.module('webApp', [
   'route-segment',
   'view-segment',
   'appFilters',
-  'ui.bootstrap'
+  'ui.bootstrap',
+  'directives'
 ]).config(function ($routeProvider, $routeSegmentProvider) {
   $routeSegmentProvider.options.autoLoadTemplates = true;
 
