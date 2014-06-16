@@ -1,1 +1,1 @@
-web: ./build/install/Plus2Flickr/bin/Plus2Flickr startWeb -p $PORT -couchDb $CLOUDANT_URL -googleAppSettings $GOOGLE_APP_SETTINGS -flickrAppSettings $FLICKR_APP_SETTINGS -staticContentPath $STATIC_CONTENT_PATH
+web: ./build/install/Photomover/bin/Photomover startWeb -p $PORT -couchDb $CLOUDANT_URL -googleAppSettings $GOOGLE_APP_SETTINGS -flickrAppSettings $FLICKR_APP_SETTINGS -staticContentPath $STATIC_CONTENT_PATH
