@@ -80,7 +80,7 @@ class UserResource [Inject] (
       userService.authorizeOAuth2Service(state.currentUser, data.code, data.service)
       return OperationResponse(data = state.currentUser.getUserInfo(), success = true)
     } catch (e: AuthorizationException){
-      return OperationResponse(success = false, errors = listOf(ErrorInfo(message = e.message)))
+      return OperationResponse(success = false, errors = listOf(ErrorInfo(message = e.errorMessage)))
     }
   }
 

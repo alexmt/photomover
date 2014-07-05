@@ -1,6 +1,6 @@
 package photomover.thirdparty
 
-class AuthorizationException(val error: AuthorizationError, val message: String = "") : Exception()
+class AuthorizationException(val error: AuthorizationError, val errorMessage: String = "") : Exception()
 class InvalidTokenException(cause: Throwable? = null): Exception(cause)
 
 enum class AuthorizationError {
