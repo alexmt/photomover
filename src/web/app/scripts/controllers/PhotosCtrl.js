@@ -21,15 +21,19 @@ angular.module('controllers')
       $scope.showPhoto = function (index) {
         $modal.open({
           templateUrl: 'photoModal.html',
-          controller: ['$scope', 'data', function($scope, data) {
+          controller: ['$scope', '$modalInstance', 'data', function($scope, $modalInstance, data) {
             $scope.photo = data.photo;
+
+            $scope.closePhoto = function() {
+              $modalInstance.dismiss();
+            }
           }],
           resolve: {
             data: _.constant({
               photo: $scope.photos[index]
             })
           }
-        })
+        });
       };
 
       $scope.pageChanged = function() {
