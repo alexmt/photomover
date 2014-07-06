@@ -22,15 +22,28 @@ angular.module('controllers')
         $modal.open({
           templateUrl: 'photoModal.html',
           controller: ['$scope', '$modalInstance', 'data', function($scope, $modalInstance, data) {
-            $scope.photo = data.photo;
+            var index = data.index;
+            $scope.photo = data.photos[index];
 
             $scope.closePhoto = function() {
               $modalInstance.dismiss();
-            }
+            };
+            $scope.showNextPhoto = function() {
+              index = (index + 1) % data.photos.length;
+              $scope.photo = data.photos[index];
+            };
+            $scope.showPrevPhoto = function() {
+              if (index == 0) {
+                index = data.photos.length;
+              }
+              index -= 1;
+              $scope.photo = data.photos[index];
+            };
           }],
           resolve: {
             data: _.constant({
-              photo: $scope.photos[index]
+              photos: $scope.photos,
+              index: index
             })
           }
         });

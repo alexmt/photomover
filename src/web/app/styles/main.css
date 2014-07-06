@@ -1,3 +1,5 @@
+@import url(http://fonts.googleapis.com/css?family=Varela+Round);
+
 html, body, .app-content {
   height: 100%;
 }
@@ -27,10 +29,6 @@ html, body, .app-content {
   padding: 20px 0;
 }
 
-img.full-size-photo {
-  width: 100%;
-}
-
 /* Album photos */
 .Collage {
   padding:10px;
@@ -41,3 +39,53 @@ img.full-size-photo {
   opacity: 0;
 }
 
+img.full-size-photo {
+  width: 100%;
+}
+
+.photo-nav .prev, .photo-nav .next {
+  position: absolute;
+  height: 100%;
+  width: 30%;
+  top: 0;
+
+  cursor: pointer;
+
+  color: #FFF;
+  font-size: 156px;
+  font-family: "Varela Round", sans-serif;
+  background-color: rgba(255, 255, 255, .3);
+  text-shadow: 0 0 15px rgb(119, 119, 119);
+
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.photo-nav .prev:hover, .photo-nav .next:hover {
+  opacity: 1;
+}
+
+.photo-nav .next {
+  right: 0;
+}
+
+.photo-nav .prev {
+  left: 0;
+}
+
+.photo-nav .next::after, .photo-nav .prev::after {
+  position: absolute;
+  top: 50%;
+  margin-top: -111px;
+  height: 222px;
+}
+
+.photo-nav .next::after {
+  content: '›';
+  right: 20px;
+}
+
+.photo-nav .prev::after {
+  content: '‹';
+  left: 20px;
+}

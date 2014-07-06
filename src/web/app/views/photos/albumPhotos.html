@@ -4,8 +4,10 @@
       <button type="button" class="close" ng-click="closePhoto()">&times;</button>
       <h4 class="modal-title">{{photo.name}}</h4>
     </div>
-    <div class="modal-body">
+    <div class="modal-body photo-nav">
       <img class="center-block full-size-photo" ng-src="{{photo.largeUrl}}">
+      <div class="prev" ng-click="showPrevPhoto()"></div>
+      <div class="next" ng-click="showNextPhoto()"></div>
     </div>
   </div>
 </script>
