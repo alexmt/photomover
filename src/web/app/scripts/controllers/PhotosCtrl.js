@@ -1,8 +1,9 @@
 'use strict';
 
 angular.module('controllers')
-  .controller('PhotosCtrl', ['$scope', '$location', '$routeSegment', '$modal', 'presentationSettings', 'Photo',
-    function ($scope, $location, $routeSegment, $modal, presentationSettings, Photo) {
+  .controller('PhotosCtrl', [
+    '$scope', '$location', '$routeSegment', '$modal', '$rootScope', 'presentationSettings', 'Photo',
+    function ($scope, $location, $routeSegment, $modal, $rootScope, presentationSettings, Photo) {
 
       function reloadPhotos() {
         Photo.albumPhotos({
@@ -55,10 +56,13 @@ angular.module('controllers')
           id: $routeSegment.$routeParams.id,
           page: $scope.currentPage
         }));
-        reloadPhotos();
       };
       $scope.photosPerPage = presentationSettings.photosPerPage;
       $scope.maxPagesCount = presentationSettings.maxPagesCount;
+      $scope.$on('$routeChangeSuccess', function (event, currentRoute) {
+        $scope.currentPage = currentRoute.pathParams.page || 1;
+        reloadPhotos();
+      });
 
       Photo.albumInfo({
         service: $routeSegment.$routeParams.service,
