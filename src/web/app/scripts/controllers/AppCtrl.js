@@ -6,6 +6,13 @@ angular.module('controllers')
 
       function applyInfo(userInfo) {
         $scope.userInfo = userInfo;
+        $scope.hasUnlinkedServices = false;
+        for (var service in userInfo.accountsState) {
+          if (!userInfo.accountsState[service]) {
+            $scope.hasUnlinkedServices = true;
+            break;
+          }
+        }
         if (userInfo && userInfo.isAnonymous) {
           $location.path("/login");
         }
