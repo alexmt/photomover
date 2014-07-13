@@ -85,7 +85,7 @@ dependencies {
   // services
   runtime "javax.mail:mail:1.4"
   compile "org.scribe:scribe:$scribeVersion" //oauth
-  compile "com.flickr4java:flickr:$flickrVersion"
+  compile "com.flickr4java:flickr4java:$flickrVersion"
   compile "com.google.api-client:google-api-client:$googleApiClientVersion"
   compile "com.google.api-client:google-api-client:$googleApiClientVersion"
   compile "com.google.apis:google-api-services-oauth2:v2-rev60-1.17.0-rc"
