@@ -4,7 +4,7 @@
 <div class="row">
   <div class="col-md-2" ng-repeat="album in albums">
     <a ng-href="#home/photos/{{service}}/albums/{{album.id}}/albumPhotos" class="thumbnail">
-      <img ng-src="{{album.thumbnailUrl}}" title="{{album.name}}">
+      <img selectable ng-src="{{album.thumbnailUrl}}" title="{{album.name}}">
     </a>
   </div>
 </div>

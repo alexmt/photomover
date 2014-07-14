@@ -89,3 +89,8 @@ img.full-size-photo {
   content: '‹';
   left: 20px;
 }
+
+.select-link {
+  position: absolute;
+  display: none;
+}

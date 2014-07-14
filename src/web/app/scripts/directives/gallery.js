@@ -3,7 +3,8 @@
 angular.module('directives')
   .directive('gallery', function () {
     var tpl = '<div class="Collage">' +
-      '<img ng-src="{{picture.largeUrl}}" ng-click="onPictureClick({index: picture.index})" ng-repeat="picture in pictures">' +
+        '<img selectable ng-src="{{picture.largeUrl}}" ng-click="onPictureClick({index: picture.index})"' +
+          ' ng-repeat="picture in pictures">' +
       '</div>';
     return {
       restrict: 'E',
