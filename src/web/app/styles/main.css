@@ -94,3 +94,8 @@ img.full-size-photo {
   position: absolute;
   display: none;
 }
+
+.selected {
+  padding: 5px;
+  background-color: #428bca;
+}
