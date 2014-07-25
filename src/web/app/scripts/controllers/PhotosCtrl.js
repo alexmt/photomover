@@ -2,8 +2,8 @@
 
 angular.module('controllers')
   .controller('PhotosCtrl', [
-    '$scope', '$location', '$routeSegment', '$modal', '$rootScope', 'presentationSettings', 'Photo',
-    function ($scope, $location, $routeSegment, $modal, $rootScope, presentationSettings, Photo) {
+    '$scope', '$location', '$routeSegment', '$modal', '$rootScope', 'presentationSettings', 'Photo', 'SelectionSrv',
+    function ($scope, $location, $routeSegment, $modal, $rootScope, presentationSettings, Photo, SelectionSrv) {
 
       function reloadPhotos() {
         Photo.albumPhotos({
@@ -19,6 +19,11 @@ angular.module('controllers')
       }
 
       $scope.service = $routeSegment.$routeParams.service;
+      $scope.selectionStats = SelectionSrv.getSelectionStats($scope.service);
+      $rootScope.$on("selectionChanged", function() {
+        $scope.selectionStats = SelectionSrv.getSelectionStats($scope.service);
+        $scope.$apply();
+      });
       $scope.showPhoto = function (index) {
         $modal.open({
           templateUrl: 'photoModal.html',
@@ -64,6 +69,7 @@ angular.module('controllers')
         reloadPhotos();
       });
 
+      $scope.albumId = $routeSegment.$routeParams.id;
       Photo.albumInfo({
         service: $routeSegment.$routeParams.service,
         albumId: $routeSegment.$routeParams.id

@@ -13,17 +13,31 @@
 </script>
 
 <div class="row">
+  <div class="col-md-6">
+    <h4>{{service | capitalizeFirst}} album "{{albumInfo.name}}" ({{albumInfo.photoCount}} photos).</h4>
+  </div>
+  <div class="col-md-6 text-right">
+    <h4><selectionstats></selectionstats></h4>
+  </div>
+</div>
+<div class="row">
   <div class="col-md-12">
-    <h4>{{service | capitalizeFirst}} album "{{albumInfo.name}}".</h4>
-    <a class="pull-right" ng-href="#/home/photos/{{service}}/albums">Back to {{service | capitalizeFirst}} albums.</a>
-    <p class="text-muted">Album has {{albumInfo.photoCount}} photos.</p>
+    <a ng-href="#/home/photos/{{service}}/albums">Back to {{service | capitalizeFirst}} albums.</a>
   </div>
 </div>
 <div class="row">
   <div class="col-md-12">
     <pagination ng-model="currentPage" ng-change="pageChanged()" total-items="albumInfo.photoCount"
                 boundary-links="true" items-per-page="photosPerPage" max-size="maxPagesCount"></pagination>
-    <gallery pictures="photos" on-picture-click="showPhoto(index)"></gallery>
+    <gallery pictures="photos">
+      <img selectable
+           albumId="{{albumId}}"
+           photoId="{{photo.id}}"
+           service="{{service}}"
+           ng-src="{{photo.largeUrl}}"
+           ng-click="showPhoto(photo.index)"
+           ng-repeat="photo in photos">
+    </gallery>
     <pagination ng-model="currentPage" ng-change="pageChanged()" total-items="albumInfo.photoCount"
                 boundary-links="true" items-per-page="photosPerPage" max-size="maxPagesCount"></pagination>
   </div>

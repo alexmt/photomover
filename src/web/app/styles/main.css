@@ -30,6 +30,11 @@ html, body, .app-content {
 }
 
 /* Album photos */
+
+.no-img-padding img {
+  padding: 0 !important;
+}
+
 .Collage {
   padding:10px;
 }
@@ -90,6 +95,8 @@ img.full-size-photo {
   left: 20px;
 }
 
+
+/* Selection directive */
 .select-link {
   position: absolute;
   display: none;

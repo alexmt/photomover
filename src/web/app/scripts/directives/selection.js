@@ -52,13 +52,15 @@ angular.module('directives')
         var isSelected = selectionLink.hasClass(SELECTED_LINK_CLASS);
         SelectionSrv.setSelected(getSelectionTarget(activeTarget), isSelected);
         updateTargetSelectedClass(activeTarget, isSelected);
+        $rootScope.$broadcast('selectionChanged');
       }
     }
 
     function getSelectionTarget(element) {
       return {
         albumId: element.attr('albumId'),
-        photoId: element.attr('photoId')
+        photoId: element.attr('photoId'),
+        service: element.attr('service')
       }
     }
 
@@ -74,9 +76,21 @@ angular.module('directives')
     selectionLink.on('click', onSelectionLinkClick);
     return {
       restrict: 'A',
-      link: function (scope, element) {
+      link: function (scope, element, attr) {
+
         element.hover(onHover);
-        updateTargetSelectedClass(element, SelectionSrv.isSelected(element));
+        updateTargetSelectedClass(element, SelectionSrv.isSelected({
+          service: attr.service,
+          albumId: attr.albumid,
+          photoId: attr.photoid
+        }));
       }
+    }
+  }])
+  .directive('selectionstats', [function() {
+    return {
+      restrict: 'E',
+      template: '<a href="#">Selected : {{selectionStats.albums}} albums and {{selectionStats.photos}} photos</a>',
+      replace: true
     }
   }]);
