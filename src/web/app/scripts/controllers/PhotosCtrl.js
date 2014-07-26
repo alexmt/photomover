@@ -19,11 +19,7 @@ angular.module('controllers')
       }
 
       $scope.service = $routeSegment.$routeParams.service;
-      $scope.selectionStats = SelectionSrv.getSelectionStats($scope.service);
-      $rootScope.$on("selectionChanged", function() {
-        $scope.selectionStats = SelectionSrv.getSelectionStats($scope.service);
-        $scope.$apply();
-      });
+      $rootScope.$broadcast('serviceChanged', $scope.service);
       $scope.showPhoto = function (index) {
         $modal.open({
           templateUrl: 'photoModal.html',

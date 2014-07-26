@@ -1,8 +1,9 @@
 'use strict';
 
 angular.module('controllers')
-  .controller('HomeCtrl', ['$rootScope', '$location', 'userInfo',
-    function ($rootScope, $location, userInfo) {
+  .controller('HomeCtrl', ['$rootScope', '$scope', '$location', 'userInfo', 'SelectionSrv',
+    function ($rootScope, $scope, $location, userInfo, SelectionSrv) {
+
       function redirectToFirstService() {
         if ($location.path() == '/home') {
           for (var account in userInfo.accountsState) {
@@ -14,12 +15,16 @@ angular.module('controllers')
         }
       }
 
+      $rootScope.$on('serviceChanged', function(event, service) {
+        $scope.selectionStats = SelectionSrv.getSelectionStats(service);
+        $rootScope.$on("selectionChanged", function() {
+          $scope.selectionStats = SelectionSrv.getSelectionStats(service);
+          $scope.$apply();
+        });
+      });
       $rootScope.$on('userUpdated', function(event, info) {
         userInfo = info;
       });
-      $rootScope.$on('$locationChangeStart', function () {
-        redirectToFirstService();
-      });
-
+      $rootScope.$on('$locationChangeStart', redirectToFirstService);
       redirectToFirstService();
     }]);
