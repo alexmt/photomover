@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('services')
-  .service('Google', ['$window','$q', function($window, $q) {
+  .service('GoogleSrv', ['$window','$q', function($window, $q) {
     var isLoading = false;
     var pendingCallbacks = [];
     $window.__onGoogleLoadCallback = function() {

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('services')
-  .factory('Photo', ['$resource', function ($resource) {
+  .factory('PhotoSrv', ['$resource', function ($resource) {
     return $resource('/', {}, {
       albums: {
         method: 'GET',

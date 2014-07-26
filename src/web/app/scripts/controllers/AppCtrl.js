@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('controllers')
-  .controller('AppCtrl', ['$scope', '$rootScope', '$location', '$window', 'App', 'Google', 'User',
-    function ($scope, $rootScope, $location, $window, App, Google, User) {
+  .controller('AppCtrl', ['$scope', '$rootScope', '$location', '$window', 'AppSrv', 'GoogleSrv', 'UserSrv',
+    function ($scope, $rootScope, $location, $window, AppSrv, GoogleSrv, UserSrv) {
 
       function applyInfo(userInfo) {
         $scope.userInfo = userInfo;
@@ -23,9 +23,9 @@ angular.module('controllers')
       };
 
       $scope.signInToGoogle = function () {
-        App.googleAppSettings(function (settings) {
-          Google.authorize(settings).then(function (code) {
-            User.authorizeOAuth2Account({ service: 'google', code: code }, function (response) {
+        AppSrv.googleAppSettings(function (settings) {
+          GoogleSrv.authorize(settings).then(function (code) {
+            UserSrv.authorizeOAuth2Account({ service: 'google', code: code }, function (response) {
               $scope.userInfo = response.data;
               $location.path('/home/photos/google/albums');
             });
@@ -44,5 +44,5 @@ angular.module('controllers')
       $rootScope.$on('userUpdated', function(event, info) {
         applyInfo(info);
       });
-      User.info(applyInfo);
+      UserSrv.info(applyInfo);
     }]);

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('services')
-  .factory('User', ['$resource', function ($resource) {
+  .factory('UserSrv', ['$resource', function ($resource) {
     return $resource('/services/user/:action', {}, {
       info: {
         method: 'GET',

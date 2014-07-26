@@ -18,8 +18,8 @@ angular.module('webApp', [
   $routeSegmentProvider.options.autoLoadTemplates = true;
 
   var userInfoDep = {
-    userInfo: ['User', function (User) {
-      return User.info().$promise;
+    userInfo: ['UserSrv', function (UserSrv) {
+      return UserSrv.info().$promise;
     }]
   };
 
@@ -50,8 +50,8 @@ angular.module('webApp', [
           controller: 'PhotosCtrl',
           dependencies: ['service', 'id'],
           resolve: {
-            presentationSettings: ['App', function(App) {
-              return App.presentationSettings().$promise;
+            presentationSettings: ['AppSrv', function(AppSrv) {
+              return AppSrv.presentationSettings().$promise;
             }]
           }
         })
@@ -60,8 +60,8 @@ angular.module('webApp', [
         templateUrl: 'views/account.html',
         controller: 'AccountCtrl',
         resolve: {
-          accountInfo : ['User', function(User) {
-            return User.detailedInfo();
+          accountInfo : ['UserSrv', function(UserSrv) {
+            return UserSrv.detailedInfo();
           }]
         }
       })

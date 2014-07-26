@@ -4,16 +4,16 @@ describe('Controller: AppCtrl', function () {
 
   beforeEach(module('webApp'));
 
-  var AppCtrl, scope, rootScope, location, wnd, app, google, user, userInfo, q;
+  var AppCtrl, scope, rootScope, location, wnd, appSrv, googleSrv, userSrv, userInfo, q;
 
   // Initialize the controller and a mock scope
-  beforeEach(inject(function ($controller, $rootScope, $location, App, Google, User, $q) {
+  beforeEach(inject(function ($controller, $rootScope, $location, AppSrv, GoogleSrv, UserSrv, $q) {
     rootScope = $rootScope;
     scope = $rootScope.$new();
     location = $location;
-    app = App;
-    google = Google;
-    user = User;
+    appSrv = AppSrv;
+    googleSrv = GoogleSrv;
+    userSrv = UserSrv;
     wnd = {
       location: {}
     };
@@ -21,7 +21,7 @@ describe('Controller: AppCtrl', function () {
       name: "test user"
     };
     q = $q;
-    spyOn(user, "info").andCallFake(function(callback) {
+    spyOn(userSrv, "info").andCallFake(function(callback) {
       callback(userInfo);
     });
     AppCtrl = $controller('AppCtrl', {
@@ -29,9 +29,9 @@ describe('Controller: AppCtrl', function () {
       $rootScope: rootScope,
       $location: location,
       $window: wnd,
-      App: app,
-      Google: google,
-      User: user
+      AppSrv: appSrv,
+      GoogleSrv: googleSrv,
+      UserSrv: userSrv
     });
   }));
 
@@ -56,16 +56,16 @@ describe('Controller: AppCtrl', function () {
     var testCode = 'test_code';
     var authorizeGoogleAccountCallback = null;
 
-    spyOn(app, 'googleAppSettings').andCallFake(function(callback) {
+    spyOn(appSrv, 'googleAppSettings').andCallFake(function(callback) {
       googleAppSettingsCallback = callback;
     });
-    spyOn(google, 'authorize').andCallFake(function(settings) {
+    spyOn(googleSrv, 'authorize').andCallFake(function(settings) {
       expect(settings).toBe(testSettings);
     }).andReturn(promise);
     spyOn(promise, 'then').andCallFake(function(callback) {
       thenPromiseCallback = callback;
     });
-    spyOn(user, 'authorizeOAuth2Account').andCallFake(function(data, callback) {
+    spyOn(userSrv, 'authorizeOAuth2Account').andCallFake(function(data, callback) {
       expect(data.code).toBe(testCode);
       expect(data.service).toBe('google');
       authorizeGoogleAccountCallback = callback;

@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('controllers')
-  .controller('AccountCtrl', ['$rootScope', '$scope', '$window', 'User', 'accountInfo',
-    function ($rootScope, $scope, $window, User, accountInfo) {
+  .controller('AccountCtrl', ['$rootScope', '$scope', '$window', 'UserSrv', 'accountInfo',
+    function ($rootScope, $scope, $window, UserSrv, accountInfo) {
 
       function refreshUserInfo() {
-        User.info(function(info) {
+        UserSrv.info(function(info) {
           $rootScope.$broadcast('userUpdated', info);
         });
       }
@@ -13,7 +13,7 @@ angular.module('controllers')
       $scope.accountInfo = accountInfo;
 
       $scope.updateInfo = function () {
-        User.updateInfo({
+        UserSrv.updateInfo({
           firstName: $scope.accountInfo.firstName,
           lastName: $scope.accountInfo.lastName,
           email: $scope.accountInfo.email
@@ -30,10 +30,10 @@ angular.module('controllers')
       };
 
       $scope.confirmRemovingService = function(service) {
-        User.removeService(service, function() {
+        UserSrv.removeService(service, function() {
           removeServiceModal.modal('hide');
           refreshUserInfo();
-          User.detailedInfo(function(accountInfo) {
+          UserSrv.detailedInfo(function(accountInfo) {
             $scope.accountInfo = accountInfo;
           });
         });
@@ -44,7 +44,7 @@ angular.module('controllers')
       };
 
       $scope.confirmDeletingAccount = function() {
-        User.deleteAccount(function() {
+        UserSrv.deleteAccount(function() {
           $window.location.reload();
         });
       }
