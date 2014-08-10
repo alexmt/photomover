@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('controllers')
-  .controller('HomeCtrl', ['$rootScope', '$scope', '$location', 'userInfo', 'SelectionSrv',
-    function ($rootScope, $scope, $location, userInfo, SelectionSrv) {
+  .controller('HomeCtrl', ['$rootScope', '$scope', '$modal', '$location', 'userInfo', 'SelectionSrv',
+    function ($rootScope, $scope, $modal, $location, userInfo, SelectionSrv) {
 
       function redirectToFirstService() {
         if ($location.path() == '/home') {
@@ -15,9 +15,29 @@ angular.module('controllers')
         }
       }
 
+      function showSelection() {
+        $modal.open({
+          templateUrl: 'selectionModal.html',
+          controller: ['$scope', '$modalInstance', 'data', function($scope, $modalInstance, data) {
+            $scope.service = data.service;
+            $scope.selectionStats = SelectionSrv.getSelectionStats(data.service);
+            $scope.selectedItems = SelectionSrv.getServiceSelection(data.service);
+            $scope.close = function() {
+              $modalInstance.dismiss();
+            }
+          }],
+          resolve: {
+            data: _.constant({
+              service: $scope.service
+            })
+          }
+        });
+      }
+
       $rootScope.$on('serviceChanged', function(event, service) {
         $scope.selectionStats = SelectionSrv.getSelectionStats(service);
         $rootScope.$on("selectionChanged", function() {
+          $scope.service = service;
           $scope.selectionStats = SelectionSrv.getSelectionStats(service);
           $scope.$apply();
         });
@@ -26,5 +46,6 @@ angular.module('controllers')
         userInfo = info;
       });
       $rootScope.$on('$locationChangeStart', redirectToFirstService);
+      $rootScope.$on('showSelectionClick', showSelection);
       redirectToFirstService();
     }]);

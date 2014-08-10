@@ -60,7 +60,8 @@ angular.module('directives')
       return {
         albumId: element.attr('albumId'),
         photoId: element.attr('photoId'),
-        service: element.attr('service')
+        service: element.attr('service'),
+        thumbnailUrl: element.attr('thumbnailUrl')
       }
     }
 
@@ -87,10 +88,16 @@ angular.module('directives')
       }
     }
   }])
-  .directive('selectionstats', [function() {
+  .directive('selectionstats', ['$rootScope', function($rootScope) {
     return {
       restrict: 'E',
       template: '<a href="#">Selected : {{selectionStats.albums}} albums and {{selectionStats.photos}} photos</a>',
-      replace: true
+      replace: true,
+      link: function(scope, element) {
+        element.on('click', function() {
+          $rootScope.$broadcast('showSelectionClick');
+          return false;
+        });
+      }
     }
   }]);

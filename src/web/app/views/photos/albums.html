@@ -11,7 +11,8 @@
     <a ng-href="#home/photos/{{service}}/albums/{{album.id}}/albumPhotos" class="thumbnail">
       <img selectable ng-src="{{album.thumbnailUrl}}" title="{{album.name}}"
            albumId="{{album.id}}"
-           service="{{service}}">
+           service="{{service}}"
+           thumbnailUrl="{{album.thumbnailUrl}}">
     </a>
   </div>
 </div>

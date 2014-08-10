@@ -7,6 +7,15 @@ angular.module('services').service('SelectionSrv', [function() {
 
   var selectionPerService = {};
 
+  function getPhotoIndex(photos, photoId) {
+    for (var i in photos) {
+      if (photos[i].photoId == photoId) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   function getKeyValue(map, key, defaultValue, persistDefault) {
     var result = map[key];
     if (result == null) {
@@ -22,7 +31,7 @@ angular.module('services').service('SelectionSrv', [function() {
     var selectionPerAlbum = getKeyValue(selectionPerService, service, {}, persistSelection);
     return getKeyValue(selectionPerAlbum, albumId, {
       selectAll: false,
-      selectedPhotoIds: []
+      selectedPhotos: []
     }, persistSelection);
   }
 
@@ -33,13 +42,16 @@ angular.module('services').service('SelectionSrv', [function() {
       var albumSelection = selectionPerAlbum[albumId];
       if (albumSelection.selectAll) {
         result.push({
-          albumId: albumId
+          albumId: albumId,
+          thumbnailUrl: albumSelection.thumbnailUrl
         });
       } else {
-        for (var photoId in albumSelection.selectedPhotoIds) {
+        for (var i in albumSelection.selectedPhotos) {
+          var photo = albumSelection.selectedPhotos[i];
           result.push({
             albumId: albumId,
-            photoId: photoId
+            photoId: photo.photoId,
+            thumbnailUrl: photo.thumbnailUrl
           });
         }
       }
@@ -47,6 +59,7 @@ angular.module('services').service('SelectionSrv', [function() {
     return result;
   }
 
+  this.getServiceSelection = getServiceSelection;
   this.getSelectionStats = function(service) {
     var selectionStats = {
       albums: 0,
@@ -76,7 +89,7 @@ angular.module('services').service('SelectionSrv', [function() {
   this.isSelected = function(params) {
     var selection = getAlbumSelection(params.service, params.albumId, false);
     if (params.photoId) {
-      return !selection.selectAll && selection.selectedPhotoIds.indexOf(params.photoId) > -1;
+      return !selection.selectAll && getPhotoIndex(selection.selectedPhotos, params.photoId) > -1;
     } else {
       return selection.selectAll;
     }
@@ -96,18 +109,22 @@ angular.module('services').service('SelectionSrv', [function() {
     var selection = getAlbumSelection(params.service, params.albumId, true);
     if (params.photoId) {
       selection.selectAll = false;
-      var photoIdIndex = selection.selectedPhotoIds.indexOf(params.photoId);
-      var isPhotoSelected = photoIdIndex > -1;
+      var photoIndex = getPhotoIndex(selection.selectedPhotos, params.photoId);
+      var isPhotoSelected = photoIndex > -1;
       if (isPhotoSelected != isSelected) {
         if (isSelected) {
-          selection.selectedPhotoIds.push(params.photoId);
+          selection.selectedPhotos.push({
+            thumbnailUrl: params.thumbnailUrl,
+            photoId: params.photoId
+          });
         } else {
-          selection.selectedPhotoIds.splice(photoIdIndex, 1);
+          selection.selectedPhotos.splice(photoIndex, 1);
         }
       }
     } else {
       selection.selectAll = isSelected;
-      selection.selectedPhotoIds = [];
+      selection.thumbnailUrl = params.thumbnailUrl;
+      selection.selectedPhotos = [];
     }
   };
 }]);

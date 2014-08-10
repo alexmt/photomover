@@ -1,3 +1,30 @@
+<script type="text/ng-template" id="selectionModal.html">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" ng-click="close()">&times;</button>
+      <h4 class="modal-title">
+        Selected : {{selectionStats.albums}} albums and {{selectionStats.photos}} photos
+        <div class="btn-group">
+          <button class="btn btn-default">Copy</button>
+          <button class="btn btn-default">Move</button>
+          <button class="btn btn-default">Delete</button>
+        </div>
+      </h4>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-md-2" ng-repeat="item in selectedItems">
+          <a ng-href="#" class="thumbnail">
+            <img ng-src="{{item.thumbnailUrl}}"
+                 albumId="{{item.albumId}}"
+                 service="{{service}}">
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>
+
 <div class="container home">
 
   <div class="navbar navbar-default" role="navigation">

@@ -2,8 +2,8 @@
 
 angular.module('controllers')
   .controller('PhotosCtrl', [
-    '$scope', '$location', '$routeSegment', '$modal', '$rootScope', 'presentationSettings', 'PhotoSrv', 'SelectionSrv',
-    function ($scope, $location, $routeSegment, $modal, $rootScope, presentationSettings, PhotoSrv, SelectionSrv) {
+    '$scope', '$location', '$routeSegment', '$modal', '$rootScope', 'presentationSettings', 'PhotoSrv',
+    function ($scope, $location, $routeSegment, $modal, $rootScope, presentationSettings, PhotoSrv) {
 
       function reloadPhotos() {
         PhotoSrv.albumPhotos({
