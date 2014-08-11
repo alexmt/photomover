@@ -17,6 +17,7 @@ angular.module('controllers')
 
       function showSelection() {
         $modal.open({
+          size: 'lg',
           templateUrl: 'selectionModal.html',
           controller: ['$scope', '$modalInstance', 'data', function($scope, $modalInstance, data) {
             $scope.service = data.service;
