@@ -24,7 +24,20 @@ angular.module('controllers')
             $scope.selectedItems = SelectionSrv.getServiceSelection(data.service);
             $scope.close = function() {
               $modalInstance.dismiss();
-            }
+            };
+            $scope.removeFromSelection = function(item) {
+              SelectionSrv.setSelected({
+                service: $scope.service,
+                albumId: item.albumId,
+                photoId: item.photoId
+              }, false);
+              $scope.selectionStats = SelectionSrv.getSelectionStats(data.service);
+              $scope.selectedItems = SelectionSrv.getServiceSelection(data.service);
+              $rootScope.$broadcast('selectionChanged');
+              if ($scope.selectionStats.isEmpty) {
+                $scope.close();
+              }
+            };
           }],
           resolve: {
             data: _.constant({

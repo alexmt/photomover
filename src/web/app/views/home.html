@@ -12,13 +12,14 @@
       </h4>
     </div>
     <div class="modal-body">
-      <div class="row">
+      <div class="row selected-items">
         <div class="col-md-2" ng-repeat="item in selectedItems">
-          <a ng-href="#" class="thumbnail">
+          <div class="thumbnail">
+            <button type="button" class="close" ng-click="removeFromSelection(item)">&times;</button>
             <img ng-src="{{item.thumbnailUrl}}"
                  albumId="{{item.albumId}}"
                  service="{{service}}">
-          </a>
+          </div>
         </div>
       </div>
     </div>

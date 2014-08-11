@@ -29,6 +29,16 @@ html, body, .app-content {
   padding: 20px 0;
 }
 
+.selected-items .thumbnail {
+  position: relative;
+}
+
+.selected-items .thumbnail .close{
+  position: absolute;
+  right: 10px;
+  top: 5px;
+}
+
 /* Album photos */
 
 .no-img-padding img {
