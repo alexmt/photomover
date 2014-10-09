@@ -2,7 +2,6 @@
 target/
 .gradle
 build
-bin
 photomover.iml
 
 node_modules
