@@ -165,7 +165,12 @@ module.exports = function (grunt) {
     'bower-install': {
       app: {
         html: '<%= yeoman.app %>/index.html',
-        ignorePath: '<%= yeoman.app %>/'
+        ignorePath: '<%= yeoman.app %>/',
+        exclude: [
+          'bower_components/requirejs/require.js',
+          'bower_components/moment/moment.js',
+          'bower_components/jquery-1.11.0/dist/jquery.js'
+        ]
       }
     },
 

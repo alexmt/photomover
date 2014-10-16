@@ -8,7 +8,7 @@ import photomover.thirdparty.flickr.FlickrService
 class FlickrServiceModule(val settings: FlickrAppSettings) : AbstractModule() {
 
   override fun configure() {
-    bind(javaClass<FlickrAppSettings>())!!.toInstance(settings)
+    bind(javaClass<FlickrAppSettings>()).toInstance(settings)
   }
 
   Provides

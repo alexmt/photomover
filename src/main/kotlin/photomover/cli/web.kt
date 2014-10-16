@@ -55,14 +55,14 @@ data class StartWebOptions(
 
   fun getFlickrAppSettings(): FlickrAppSettings {
     val settings = flickrAppSettings ?: readResource("/flickr_app.json")
-    return ObjectMapper().readValue(settings.getBytes(), javaClass<FlickrAppSettings>())!!
+    return ObjectMapper().readValue(settings.toByteArray(), javaClass<FlickrAppSettings>())
   }
 
   fun getGoogleAppSettings(): GoogleAppSettings {
-    val web = ObjectMapper().readTree(googleAppSettings ?: readResource("/client_secret.json"))!!.get("web")!!
+    val web = ObjectMapper().readTree(googleAppSettings ?: readResource("/client_secret.json"))!!.get("web")
     return GoogleAppSettings(
-      clientId = web.get("client_id")!!.asText()!!,
-      clientSecret = web.get("client_secret")!!.asText()!!,
+      clientId = web.get("client_id").asText(),
+      clientSecret = web.get("client_secret").asText(),
       applicationName = "Plus2Flickr",
       scopes = listOf(
         "https://www.googleapis.com/auth/plus.login",

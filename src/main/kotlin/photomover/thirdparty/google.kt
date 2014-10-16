@@ -48,8 +48,8 @@ class GoogleService[Inject](
 
   private fun PhotoEntry.getPhotoUrl(size: ImageSize): String =
       when (size) {
-        ImageSize.THUMB -> this.getMediaThumbnails()!!.maxBy { it.getHeight() }!!.getUrl()!!
-        ImageSize.LARGE -> this.getMediaContents()!!.maxBy { it.getHeight() }!!.getUrl()!!
+        ImageSize.THUMB -> this.getMediaThumbnails().maxBy { it.getHeight() }!!.getUrl()
+        ImageSize.LARGE -> this.getMediaContents().maxBy { it.getHeight() }!!.getUrl()
         else -> throw IllegalArgumentException("Size '$size' is not supported.")
       }
 
@@ -71,22 +71,22 @@ class GoogleService[Inject](
   }
 
   private fun TokenResponse.buildCredential(): GoogleCredential = GoogleCredential.Builder()
-      .setJsonFactory(jsonFactory)!!
-      .setTransport(transport)!!
-      .setClientSecrets(settings.clientId, settings.clientSecret)!!
-      .build()!!
-      .setFromTokenResponse(this)!!
+      .setJsonFactory(jsonFactory)
+      .setTransport(transport)
+      .setClientSecrets(settings.clientId, settings.clientSecret)
+      .build()
+      .setFromTokenResponse(this)
 
   private fun GoogleCredential.buildOAuth(): Oauth2 = Oauth2.Builder(
-      transport, jsonFactory, this).build()!!
+      transport, jsonFactory, this).build()
 
   override fun authorize(code: String): OAuthToken {
     try {
       val tokenResponse = GoogleAuthorizationCodeTokenRequest(transport, jsonFactory,
-          settings.clientId, settings.clientSecret, code, "postmessage").execute()!!
+          settings.clientId, settings.clientSecret, code, "postmessage").execute()
       val credential = tokenResponse.buildCredential()
-      val tokenInfo = credential.buildOAuth().tokeninfo()!!
-          .setAccessToken(credential.getAccessToken())!!.execute()!!
+      val tokenInfo = credential.buildOAuth().tokeninfo()
+          .setAccessToken(credential.getAccessToken()).execute()
       if (tokenInfo.containsKey("error")) {
         throw AuthorizationException(
             AuthorizationError.SERVER_ERROR, tokenInfo.get("error").toString())
@@ -95,7 +95,7 @@ class GoogleService[Inject](
         throw AuthorizationException(AuthorizationError.INVALID_CLIENT_ID)
       }
       return OAuthToken(
-          accessToken = tokenResponse.getAccessToken()!!,
+          accessToken = tokenResponse.getAccessToken(),
           refreshToken = tokenResponse.getRefreshToken())
     } catch (e: TokenResponseException) {
       throw AuthorizationException(AuthorizationError.SERVER_ERROR, e.toString())
@@ -104,9 +104,9 @@ class GoogleService[Inject](
 
   override fun getAccountInfo(token: OAuthToken): AccountInfo {
     return token.callPicasa {
-      val info = token.toGoogleToken().buildCredential().buildOAuth().userinfo()!!.get()!!.execute()!!
+      val info = token.toGoogleToken().buildCredential().buildOAuth().userinfo().get().execute()
       AccountInfo(
-          info.getId()!!,
+          info.getId(),
           firstName = info.getGivenName(),
           lastName = info.getFamilyName(),
           email = info.getEmail())
@@ -116,11 +116,11 @@ class GoogleService[Inject](
   override fun getAlbums(userId: String, token: OAuthToken): List<Album> {
     return token.callPicasa {
       val feedUrl = URL("$apiFeed/$userId?kind=album")
-      it.getFeed(feedUrl, javaClass<UserFeed>())!!.getAlbumEntries()!!.map {
+      it.getFeed(feedUrl, javaClass<UserFeed>()).getAlbumEntries().map {
         Album(
-            id = it.getGphotoId()!!,
-            name = it.getTitle()!!.getPlainText()!!,
-            thumbnailUrl = it.getMediaGroup()!!.getThumbnails()!!.first!!.getUrl()!! )
+            id = it.getGphotoId(),
+            name = it.getTitle().getPlainText(),
+            thumbnailUrl = it.getMediaGroup().getThumbnails().first!!.getUrl() )
       }
     }
   }
@@ -128,17 +128,17 @@ class GoogleService[Inject](
   override fun getAlbumInfo(userId: String, token: OAuthToken, albumId: String): AlbumInfo {
     return token.callPicasa {
       val feedUrl = URL("$apiFeed/$userId/albumid/$albumId?max-results=0")
-      val info = it.getFeed(feedUrl, javaClass<AlbumFeed>())!!
-      AlbumInfo(name = info.getTitle()!!.getPlainText()!!, photoCount = info.getPhotosUsed()!!)
+      val info = it.getFeed(feedUrl, javaClass<AlbumFeed>())
+      AlbumInfo(name = info.getTitle().getPlainText(), photoCount = info.getPhotosUsed())
     }
   }
 
   override fun getAlbumPhotos(userId: String, token: OAuthToken, albumId: String, page: Page): List<Photo> {
     return token.callPicasa {
       val feedUrl = URL("$apiFeed/$userId/albumid/$albumId?start-index=${page.startIndex}&max-results=${page.size}")
-      it.getFeed(feedUrl, javaClass<AlbumFeed>())!!.getPhotoEntries()!!.map {
+      it.getFeed(feedUrl, javaClass<AlbumFeed>()).getPhotoEntries().map {
         Photo(
-            id = it.getId()!!,
+            id = it.getId(),
             name = it.getTitle()?.getPlainText() ?: "",
             thumbUrl = it.getPhotoUrl(ImageSize.THUMB),
             largeUrl = it.getPhotoUrl(ImageSize.LARGE)
@@ -149,9 +149,9 @@ class GoogleService[Inject](
 
   override fun refreshAccessToken(refreshToken: String): String {
     val response = RefreshTokenRequest(transport, jsonFactory, GenericUrl(GoogleOAuthConstants.TOKEN_SERVER_URL), refreshToken)
-        .setClientAuthentication(ClientParametersAuthentication(settings.clientId, settings.clientSecret))!!
-        .execute()!!
-    return response.getAccessToken()!!
+        .setClientAuthentication(ClientParametersAuthentication(settings.clientId, settings.clientSecret))
+        .execute()
+    return response.getAccessToken()
   }
 
   override fun authorize(token: String, requestSecret: String, verifier: String): OAuthToken {

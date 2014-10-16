@@ -48,17 +48,17 @@ class UserServiceTest {
     serviceContainer.register(google, googleService!!)
     serviceContainer.register(flickr, flickrService!!)
     userService = UserService(users!!, serviceContainer)
-    whenMock(googleService!!.authorize(authCode))!!.thenReturn(token)
-    whenMock(googleService!!.getAccountInfo(token))!!.thenReturn(accountInfo)
+    whenMock(googleService!!.authorize(authCode)).thenReturn(token)
+    whenMock(googleService!!.getAccountInfo(token)).thenReturn(accountInfo)
   }
 
   Test fun authorizeOAuth2Service_accountNotLinkedToOther_userIsPersisted() {
     val user = User()
-    whenMock(users!!.findByAccountId(accountInfo.id, google))!!.thenReturn(null)
+    whenMock(users!!.findByAccountId(accountInfo.id, google)).thenReturn(null)
 
     userService!!.authorizeOAuth2Service(user, authCode, google)
 
-    verify(users)!!.update(user)
+    verify(users).update(user)
     assertTrue(user.accounts.containsKey(google))
   }
 
@@ -68,11 +68,11 @@ class UserServiceTest {
     existingUser.setId("existing_user_id")
     existingUser.info = UserInfo("test", "user")
     existingUser.accounts.put(flickr, OAuthData())
-    whenMock(users!!.findByAccountId(accountInfo.id, google))!!.thenReturn(existingUser)
+    whenMock(users!!.findByAccountId(accountInfo.id, google)).thenReturn(existingUser)
 
     userService!!.authorizeOAuth2Service(user, authCode, google)
 
-    verify(users)!!.remove(existingUser)
+    verify(users).remove(existingUser)
     assertTrue(user.accounts.containsKey(flickr))
     assertTrue(user.accounts.containsKey(google))
     assertEquals(existingUser.info, user.info)
@@ -93,13 +93,13 @@ class UserServiceTest {
   Test fun authorizeOAuth_accountNotLinkedToOther_userIsPersisted() {
     val user = User()
     user.oauthRequestSecret.put(flickr, "test")
-    whenMock(flickrService!!.authorize(authCode, "test", verifier))!!.thenReturn(token)
-    whenMock(flickrService!!.getAccountInfo(token))!!.thenReturn(accountInfo)
-    whenMock(users!!.findByAccountId(accountInfo.id, flickr))!!.thenReturn(null)
+    whenMock(flickrService!!.authorize(authCode, "test", verifier)).thenReturn(token)
+    whenMock(flickrService!!.getAccountInfo(token)).thenReturn(accountInfo)
+    whenMock(users!!.findByAccountId(accountInfo.id, flickr)).thenReturn(null)
 
     userService!!.authorizeOAuthService(user, authCode, verifier, flickr)
 
-    verify(users)!!.update(user)
+    verify(users).update(user)
     assertTrue(user.accounts.containsKey(flickr))
     assertFalse(user.oauthRequestSecret.containsKey(flickr))
   }

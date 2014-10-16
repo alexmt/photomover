@@ -28,7 +28,7 @@ class CouchDbUserRepositoryTest[Inject](val users: UserRepository, val dbManager
     users.add(googleUser)
     users.add(flickrUser)
 
-    assertEquals(2, users.getAll()!!.size)
+    assertEquals(2, users.getAll().size)
 
     var foundUGoogleUser = users.findByAccountId("test@gmail.com", google)
     assertNotNull(foundUGoogleUser)

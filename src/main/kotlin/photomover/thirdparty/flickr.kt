@@ -38,13 +38,13 @@ class FlickrService(val appSettings: FlickrAppSettings) : CloudService {
 
   private fun getService(callback: String = "") : OAuthService {
     val builder = ServiceBuilder()
-        .provider(javaClass<FlickrApi>())!!
-        .apiKey(appSettings.apiKey)!!
-        .apiSecret(appSettings.apiSecret)!!
+        .provider(javaClass<FlickrApi>())
+        .apiKey(appSettings.apiKey)
+        .apiSecret(appSettings.apiSecret)
     if (!Strings.isNullOrEmpty(callback)) {
-      builder.callback(callback)!!
+      builder.callback(callback)
     }
-    return builder.build()!!
+    return builder.build()
   }
 
   private fun OAuthToken.callFlickr<T>(action: (Flickr)->T): T {
@@ -54,7 +54,7 @@ class FlickrService(val appSettings: FlickrAppSettings) : CloudService {
       auth.setPermission(Permission.DELETE)
       auth.setToken(this.accessToken)
       auth.setTokenSecret(this.oauth1TokenSecret)
-      RequestContext.getRequestContext()!!.setAuth(auth)
+      RequestContext.getRequestContext().setAuth(auth)
       flickr.setAuth(auth)
       return action(flickr)
     } catch (ex: FlickrException) {
@@ -67,23 +67,23 @@ class FlickrService(val appSettings: FlickrAppSettings) : CloudService {
 
   override fun requestAuthorization(callback: String): AuthorizationRequest {
     val service = getService(callback)
-    val requestToken = service.getRequestToken()!!
-    val authorizationUrl = service.getAuthorizationUrl(requestToken)!! + "&perms=delete"
-    return AuthorizationRequest(authorizationUrl, requestToken.getSecret()!!)
+    val requestToken = service.getRequestToken()
+    val authorizationUrl = service.getAuthorizationUrl(requestToken) + "&perms=delete"
+    return AuthorizationRequest(authorizationUrl, requestToken.getSecret())
   }
 
   override fun authorize(token: String, requestSecret: String, verifier: String): OAuthToken {
     val requestToken = Token(token, requestSecret)
-    val accessToken = getService().getAccessToken(requestToken, Verifier(verifier))!!
-    return OAuthToken(accessToken = accessToken.getToken()!!, oauth1TokenSecret = accessToken.getSecret())
+    val accessToken = getService().getAccessToken(requestToken, Verifier(verifier))
+    return OAuthToken(accessToken = accessToken.getToken(), oauth1TokenSecret = accessToken.getSecret())
   }
 
   override fun getAccountInfo(token: OAuthToken): AccountInfo {
     return token.callFlickr {
-      val user = it.getTestInterface()!!.login()!!
-      val accountInfo = AccountInfo(user.getId()!!)
-      val userInfo = it.getPeopleInterface()!!.getInfo(user.getId())!!
-      val nameParts = userInfo.getRealName()!!.split(" ")
+      val user = it.getTestInterface().login()
+      val accountInfo = AccountInfo(user.getId())
+      val userInfo = it.getPeopleInterface().getInfo(user.getId())
+      val nameParts = userInfo.getRealName().split(" ")
       if (nameParts.size > 0) {
         accountInfo.firstName = nameParts[0]
       }
@@ -109,41 +109,41 @@ class FlickrService(val appSettings: FlickrAppSettings) : CloudService {
 
   override fun getAlbums(userId: String, token: OAuthToken): List<Album> {
     return token.callFlickr {
-      it.getPhotosetsInterface()!!.getList(userId)!!.getPhotosets()!!.map {
+      it.getPhotosetsInterface().getList(userId).getPhotosets().map {
         Album(
-            id = it.getId()!!,
-            name = it.getTitle()!!,
-            thumbnailUrl = it.getPhotoUrl(it.getPrimaryPhoto()!!.getId()!!, ImageSize.THUMB))
+            id = it.getId(),
+            name = it.getTitle(),
+            thumbnailUrl = it.getPhotoUrl(it.getPrimaryPhoto().getId(), ImageSize.THUMB))
       }
     }
   }
 
   override fun getAlbumInfo(userId: String, token: OAuthToken, albumId: String): AlbumInfo {
     return token.callFlickr {
-      val info = it.getPhotosetsInterface()!!.getInfo(albumId)!!
-      AlbumInfo(name = info.getTitle()!!, photoCount = info.getPhotoCount())
+      val info = it.getPhotosetsInterface().getInfo(albumId)
+      AlbumInfo(name = info.getTitle(), photoCount = info.getPhotoCount())
     }
   }
 
   override fun getAlbumPhotos(userId: String, token: OAuthToken, albumId: String, page: Page): List<Photo> {
     return token.callFlickr {
-      it.getPhotosetsInterface()!!.getPhotos(albumId, page.size, page.number)!!.map {
+      it.getPhotosetsInterface().getPhotos(albumId, page.size, page.number).map {
         Photo(
-            id = it.getId()!!,
-            name = it.getTitle()!!,
-            thumbUrl = it.getPhotoUrl(it.getId()!!, ImageSize.THUMB),
-            largeUrl = it.getPhotoUrl(it.getId()!!, ImageSize.LARGE))
+            id = it.getId(),
+            name = it.getTitle(),
+            thumbUrl = it.getPhotoUrl(it.getId(), ImageSize.THUMB),
+            largeUrl = it.getPhotoUrl(it.getId(), ImageSize.LARGE))
       }
     }
   }
 
   override fun getPhotoUrl(id: String, size: ImageSize, token: OAuthToken): String {
     return token.callFlickr {
-      val photosService = it.getPhotosInterface()!!
-      val requiredSize = imageSizeToFlickrSize[size]!!
-      val sizes = photosService.getSizes(id)!!
-      val imgSize = sizes.filter { it.getLabel() == requiredSize.label }.firstOrNull() ?: sizes.first()
-      imgSize.getSource()!!
+      val photosService = it.getPhotosInterface()
+      val requiredSize = imageSizeToFlickrSize[size]
+      val sizes = photosService.getSizes(id)
+      val imgSize = sizes.filter { it.getLabel() == requiredSize!!.label }.firstOrNull() ?: sizes.first()
+      imgSize.getSource()
     }
   }
 

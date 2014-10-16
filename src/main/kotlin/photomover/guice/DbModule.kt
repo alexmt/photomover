@@ -17,7 +17,7 @@ class DbModule(
     val url: String = "http://localhost:5984") : AbstractModule() {
 
   override fun configure() {
-    bind(javaClass<UserRepository>())!!.to(javaClass<CouchDbUserRepository>())
+    bind(javaClass<UserRepository>()).to(javaClass<CouchDbUserRepository>())
   }
 
   Provides fun provideDbInstance(): CouchDbInstance =

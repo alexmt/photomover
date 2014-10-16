@@ -4,24 +4,70 @@
       <button type="button" class="close" ng-click="close()">&times;</button>
       <h4 class="modal-title">
         Selected : {{selectionStats.albums}} albums and {{selectionStats.photos}} photos
-        <div class="btn-group">
-          <button class="btn btn-default">Copy</button>
-          <button class="btn btn-default">Move</button>
-          <button class="btn btn-default">Delete</button>
-        </div>
       </h4>
     </div>
     <div class="modal-body">
-      <div class="row selected-items">
-        <div class="col-md-2" ng-repeat="item in selectedItems">
-          <div class="thumbnail">
-            <button type="button" class="close" ng-click="removeFromSelection(item)">&times;</button>
-            <img ng-src="{{item.thumbnailUrl}}"
-                 albumId="{{item.albumId}}"
-                 service="{{service}}">
-          </div>
+      <div class="row">
+        <div class="col-md-12">
+          <wizard step="currentStep">
+            <ul class="steps">
+              <li data-step="1" class="active">
+                <span class="badge">1</span>Action<span class="chevron"></span>
+              </li>
+              <li data-step="2" ng-class="{hidden: selectedAction == 'delete'}">
+                <span class="badge">2</span>Location</span><span class="chevron"></span>
+              </li>
+            </ul>
+            <div class="actions">
+              <button class="btn btn-default ng-class:{'disabled': currentStep == 1};"
+                      ng-click="setStep(1)" ng-if="selectedAction != 'delete'">
+                <span class="glyphicon glyphicon-arrow-left"></span>Prev
+              </button>
+              <button class="btn btn-default"
+                      ng-click="setStep(2)" ng-if="currentStep == 1 && selectedAction != 'delete'">
+                Next<span class="glyphicon glyphicon-arrow-right"></span>
+              </button>
+              <button class="btn btn-default" ng-if="currentStep == 2 || selectedAction == 'delete'">Complete</button>
+            </div>
+            <div class="step-content">
+              <div class="step-pane active alert" data-step="1">
+                <div class="row">
+                  <div class="col-md-12">
+                    <form class="form-inline" role="form">
+                      <div class="form-group">
+                        <div class="radio-inline" ng-repeat="action in actions">
+                          <label>
+                            <input
+                              type="radio"
+                              name="actions"
+                              value="{{action}}"
+                              ng-model="$parent.selectedAction">
+                            {{action | capitalizeFirst}}
+                          </label>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <div class="row selected-items">
+                  <div class="col-md-2" ng-repeat="item in selectedItems">
+                    <div class="thumbnail">
+                      <button type="button" class="close" ng-click="removeFromSelection(item)">&times;</button>
+                      <img ng-src="{{item.thumbnailUrl}}"
+                           albumId="{{item.albumId}}"
+                           service="{{service}}">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="step-pane" data-step="2">
+                This is the end. My friend!
+              </div>
+            </div>
+          </wizard>
         </div>
       </div>
+
     </div>
   </div>
 </script>

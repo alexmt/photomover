@@ -27,8 +27,8 @@ class CouchDbManager(val dbName: String, val dbInstance: CouchDbInstance, val in
       dbInstance.createDatabase(dbPath)
     }
     for (clazz in repositoryClasses) {
-      val repoClass = clazz!! as Class<CouchDbRepositorySupport<out Any?>>
-      val repository = injector.getInstance(repoClass)!!
+      val repoClass = clazz as Class<CouchDbRepositorySupport<out Any?>>
+      val repository = injector.getInstance(repoClass)
       repository.initStandardDesignDocument()
     }
   }

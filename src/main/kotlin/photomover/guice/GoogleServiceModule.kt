@@ -11,10 +11,10 @@ import com.google.api.client.json.jackson2.JacksonFactory
 class GoogleServiceModule(val settings: GoogleAppSettings) : AbstractModule() {
 
   override fun configure() {
-    bind(javaClass<GoogleAppSettings>())!!.toInstance(settings)
+    bind(javaClass<GoogleAppSettings>()).toInstance(settings)
   }
 
-  Provides fun provideHttpTransport(): HttpTransport = GoogleNetHttpTransport.newTrustedTransport()!!
+  Provides fun provideHttpTransport(): HttpTransport = GoogleNetHttpTransport.newTrustedTransport()
 
-  Provides fun provideJsonFactory(): JsonFactory = JacksonFactory.getDefaultInstance()!!
+  Provides fun provideJsonFactory(): JsonFactory = JacksonFactory.getDefaultInstance()
 }

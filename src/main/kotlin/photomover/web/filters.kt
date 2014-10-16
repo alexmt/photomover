@@ -34,9 +34,9 @@ class AuthenticationResponseFilter[Inject](
   }
 
   override fun filter(request: ContainerRequest?): ContainerRequest? {
-    val session = requestProvider.get()!!.getSession(true)!!
+    val session = requestProvider.get().getSession(true)
     val userId = getSessionUserId(session)
-    val state = stateProvider.get()!!
+    val state = stateProvider.get()
     state.user = if (userId == null || userId.isEmpty()) {
       userService.createUser()
     } else {
@@ -46,8 +46,8 @@ class AuthenticationResponseFilter[Inject](
   }
 
   override fun filter(request: ContainerRequest?, response: ContainerResponse?): ContainerResponse? {
-    val state = stateProvider.get()!!
-    val session = requestProvider.get()!!.getSession(true)!!
+    val state = stateProvider.get()
+    val session = requestProvider.get().getSession(true)
     setSessionUserId(state.user?.getId(), session)
     return response
   }

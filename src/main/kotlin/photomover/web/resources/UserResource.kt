@@ -88,7 +88,7 @@ class UserResource [Inject] (
       PathParam("service") service: String,
       Context request: HttpServletRequest,
       Context response: HttpServletResponse) {
-    val path = CharMatcher.anyOf("/")!!.trimFrom(request.getRequestURI()!!.replace("/authorize", "/verify"))
+    val path = CharMatcher.anyOf("/").trimFrom(request.getRequestURI().replace("/authorize", "/verify"))
     val url ="${request.getScheme()}://${request.getServerName()}:${request.getServerPort()}/$path"
     response.sendRedirect(userService.getOAuthAuthorizationUrl(state.currentUser, url, service))
   }

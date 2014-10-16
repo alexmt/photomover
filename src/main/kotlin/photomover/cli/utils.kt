@@ -94,10 +94,10 @@ fun authorize(flickr: Flickr) {
 fun upload(options: UploadOptions) {
   val flickr = Flickr(options.appKey, options.appSecret, REST())
   authorize(flickr)
-  val photosetsInteface = flickr.getPhotosetsInterface()!!
-  val photoSets = photosetsInteface.getList(flickr.getAuth()!!.getUser()!!.getId())!!
+  val photosetsInteface = flickr.getPhotosetsInterface()
+  val photoSets = photosetsInteface.getList(flickr.getAuth().getUser().getId())
   var setByTitle = HashMap<String, Photoset>()
-  for (set in photoSets.getPhotosets()!!) {
+  for (set in photoSets.getPhotosets()) {
     setByTitle.put(set.getTitle()!!, set)
   }
   val uploader = flickr.getUploader()!!
@@ -116,7 +116,7 @@ fun upload(options: UploadOptions) {
       try {
         val photoId = uploader.upload(file, metaData)
         if (set == null) {
-          set = photosetsInteface.create(dir.name, null, photoId)!!
+          set = photosetsInteface.create(dir.name, null, photoId)
         } else {
           photosetsInteface.addPhoto(set!!.getId(), photoId)
         }

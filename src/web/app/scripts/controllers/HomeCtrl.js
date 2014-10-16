@@ -20,9 +20,15 @@ angular.module('controllers')
           size: 'lg',
           templateUrl: 'selectionModal.html',
           controller: ['$scope', '$modalInstance', 'data', function($scope, $modalInstance, data) {
+            $scope.actions = ['copy', 'move', 'delete'];
             $scope.service = data.service;
             $scope.selectionStats = SelectionSrv.getSelectionStats(data.service);
             $scope.selectedItems = SelectionSrv.getServiceSelection(data.service);
+            $scope.currentStep = 1;
+            $scope.selectedAction = 'copy';
+            $scope.setStep = function(step) {
+              $scope.currentStep = step;
+            };
             $scope.close = function() {
               $modalInstance.dismiss();
             };
